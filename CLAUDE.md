@@ -1,80 +1,86 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code when working with code in this repository.
-
 ## Project Overview
 
-SlideAI — an AI-powered slide/presentation generation web application built with Django and MySQL, using server-side rendered templates with Bootstrap.
+SlideAI — AI-powered presentation generation. Django + MySQL, server-side rendered with Bootstrap 5.
 
 ## Commands
 
 ```bash
-# Setup
-pip install -r requirements.txt
-python manage.py migrate
-
-# Run (dev)
-python manage.py runserver
-
-# Tests
-python manage.py test
-
-# Create superuser
-python manage.py createsuperuser
+pip install -r requirements.txt    # Setup
+python manage.py migrate           # Apply migrations
+python manage.py runserver         # Dev server
+python manage.py test              # Tests
+python manage.py createsuperuser   # Admin user
 ```
 
-Environment: copy `.env.sample` to `.env` and fill in required keys (SECRET_KEY, DB credentials, API keys).
+Environment: copy `.env.sample` → `.env`, fill in SECRET_KEY, DB credentials, AI_PROVIDER.
 
-## Architecture
+## Architecture — Service-Repository Pattern
+
+```
+HTTP Request → View (thin) → Service (pure logic) → Repository (ORM) → Model/DB
+```
+
+### Layer Rules
+- **View** — parse HTTP, call service, return response. Never imports models or repositories.
+- **Service** — pure business logic. Never touches request/response. Never calls .objects. Returns frozen DTOs.
+- **Repository** — sole owner of ORM queries. Only layer that calls .objects.
+- **Model** — pure data definition. Schema + `__str__` only. Zero logic.
+- **DTO** — frozen dataclasses (`dtos.py`) for inter-layer data transfer.
+
+### Import Rules (prevents circular imports)
+```
+models/       → only Django, stdlib
+repositories/ → models/ only
+services/     → repositories/ + core/dtos only
+views/        → services/ + forms/ only
+forms/        → models/ only (for ModelForm)
+```
 
 ### Project Layout
 ```
-slideai/          — Django project settings (settings.py, urls.py, wsgi.py)
-core/             — Main application (models, views, urls, forms)
-templates/        — Django HTML templates (Bootstrap-based)
-static/           — CSS, JS, images
+config/              — Django settings (base/dev/prod), urls, wsgi, asgi
+apps/core/           — Shared: BaseRepository, exceptions, dtos, mixins, middleware
+apps/accounts/       — Auth, User model, profiles
+apps/presentations/  — Main domain: presentations, slides, templates, themes
+apps/ai/             — AI integration (provider-agnostic, isolated)
+templates/           — Django HTML templates (Bootstrap 5)
+static/              — CSS, JS, images
 ```
 
-### Tech Stack
-- **Backend:** Python / Django
-- **Database:** MySQL (via mysqlclient or PyMySQL)
-- **Frontend:** Django templates + HTML/CSS/JavaScript + Bootstrap
-- **AI Integration:** TBD (slide generation logic)
-
-### Patterns
-- Django MTV (Model-Template-View) architecture
-- Server-side rendering with Django template engine
-- Bootstrap for responsive UI components
-- Static files served via Django's staticfiles app
+### Each App Internal Structure
+```
+app/
+├── models/       — One file per model, __init__.py re-exports
+├── repositories/ — One per model + singleton instances in __init__.py
+├── services/     — Pure functions, frozen DTOs in/out
+├── views/        — Thin HTTP handlers
+├── forms/        — Validation only
+├── dtos.py       — App-specific frozen dataclasses
+├── urls.py       — Namespaced URL patterns
+└── tests/        — test_models, test_repositories, test_services, test_views
+```
 
 ## Conventions
 
 ### Python
-- Follow Django conventions: fat models, thin views
-- Use Django ORM for all database operations
-- Class-based views preferred for CRUD, function-based for simple endpoints
-- App-specific templates in `templates/{app_name}/`
-- URL routing: project-level `slideai/urls.py` includes app-level `core/urls.py`
+- Function-based views (thin). Services are module-level functions (not classes).
+- Type hints everywhere. `frozen=True` dataclasses for DTOs. `tuple` for immutable collections.
+- Custom exception hierarchy in `apps/core/exceptions.py` — middleware translates to HTTP.
+- UUID primary keys via `UUIDPrimaryKeyMixin`. Soft delete via `SoftDeleteMixin`.
 
 ### Frontend
-- Bootstrap 5 for layout and components
-- Custom CSS in `static/css/`
-- Custom JS in `static/js/`
-- Static images in `static/images/`
-- Base template with block inheritance (`base.html` → page templates)
-- All pages extend `templates/base.html`
+- Bootstrap 5 CDN. Base template with blocks (title, content, extra_css, extra_js).
+- Components as partials: `_navbar.html`, `_footer.html`, `_messages.html`, `_pagination.html`.
 
 ### Database
-- MySQL as primary database
-- Django migrations for schema management
-- `python manage.py makemigrations` then `python manage.py migrate`
-- Never edit migration files manually
+- MySQL primary (SQLite fallback in dev when DB_NAME not set).
+- Never edit migration files. Never bypass migrations.
 
 ### Testing
-- Django's built-in TestCase for unit tests
-- Tests live in each app's `tests.py` or `tests/` directory
-- Run specific app tests: `python manage.py test core`
+- Tests in `tests/` directory per app. Repos: integration (real DB). Services: unit (mock repos). Views: HTTP (Django client).
 
 ### Git
-- `.idea/`, `__pycache__/`, `*.pyc`, `db.sqlite3`, `.env` should be in `.gitignore`
-- Never commit secret keys or credentials
+- `.idea/`, `__pycache__/`, `db.sqlite3`, `.env`, `staticfiles/`, `media/` in `.gitignore`
+- Never commit secrets.
