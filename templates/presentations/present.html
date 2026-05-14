@@ -1,0 +1,52 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ presentation.title }} — Sunum</title>
+    <link rel="stylesheet" href="{% static 'css/slides.css' %}">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { overflow: hidden; background: #000; cursor: none; }
+        body:hover { cursor: default; }
+    </style>
+</head>
+<body>
+    <div class="present-wrapper"
+         {% if presentation.theme %}
+         style="
+            --slide-primary: {{ presentation.theme.primary_color }};
+            --slide-secondary: {{ presentation.theme.secondary_color }};
+            --slide-accent: {{ presentation.theme.accent_color }};
+            --slide-font-heading: '{{ presentation.theme.font_heading }}', sans-serif;
+            --slide-font-body: '{{ presentation.theme.font_body }}', sans-serif;
+         "
+         {% else %}
+         style="
+            --slide-primary: #1a365d;
+            --slide-secondary: #ffffff;
+            --slide-accent: #3182ce;
+            --slide-font-heading: 'Inter', sans-serif;
+            --slide-font-body: 'Inter', sans-serif;
+         "
+         {% endif %}>
+
+        {% for slide in presentation.slides.all %}
+        <section class="present-slide present-slide--{{ slide.layout }}">
+            <div class="slide-card__heading">{{ slide.heading }}</div>
+            <div class="slide-card__body">{{ slide.body|linebreaksbr }}</div>
+        </section>
+        {% endfor %}
+
+        <div class="present-controls">
+            <button id="exitPresent" style="background:none;border:none;color:#fff;cursor:pointer;font-size:1rem;" title="Çıkış (Esc)">&#x2715;</button>
+            <span id="slideCounter">1 / {{ presentation.slides.all|length }}</span>
+        </div>
+
+        <div class="present-progress" id="slideProgress"></div>
+    </div>
+
+    <script src="{% static 'js/slideshow.js' %}"></script>
+</body>
+</html>

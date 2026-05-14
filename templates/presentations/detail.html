@@ -1,43 +1,130 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}{{ presentation.title }} — SlideAI{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/slides.css' %}">
+<style>
+    .theme-circle {
+        width: 32px; height: 32px; border-radius: 50%;
+        border: 2px solid transparent; cursor: pointer;
+        transition: transform 0.15s, border-color 0.15s;
+        display: inline-block;
+    }
+    .theme-circle:hover { transform: scale(1.15); }
+    .theme-circle.active { border-color: #333; box-shadow: 0 0 0 2px #fff, 0 0 0 4px #333; }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
+<div class="d-flex justify-content-between align-items-start mb-3">
     <div>
-        <h2>{{ presentation.title }}</h2>
-        <p class="text-muted">{{ presentation.description }}</p>
+        <h2 class="mb-1">{{ presentation.title }}</h2>
+        {% if presentation.description %}
+        <p class="text-muted mb-1">{{ presentation.description }}</p>
+        {% endif %}
+        <div class="d-flex align-items-center gap-2 text-muted small">
+            {% if presentation.theme %}
+            <span class="d-inline-flex align-items-center gap-1">
+                <span class="color-dot" style="background:{{ presentation.theme.primary_color }};"></span>
+                {{ presentation.theme.name }}
+            </span>
+            <span>&middot;</span>
+            {% endif %}
+            <span>{{ presentation.slide_count }} slayt</span>
+            {% if presentation.is_public %}
+            <span>&middot;</span>
+            <span class="badge bg-success">Herkese Açık</span>
+            {% endif %}
+        </div>
     </div>
-    <div>
-        <a href="{% url 'presentations:edit' pk=presentation.pk %}" class="btn btn-outline-secondary">Edit</a>
-        <a href="{% url 'presentations:slide-create' presentation_pk=presentation.pk %}" class="btn btn-primary">Add Slide</a>
+    <div class="d-flex gap-2 flex-shrink-0 flex-wrap justify-content-end">
+        {% if presentation.slides.all %}
+        <a href="{% url 'presentations:present' pk=presentation.pk %}" class="btn btn-dark">
+            &#9654; Sunum Yap
+        </a>
+        <div class="dropdown">
+            <button class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+                &#x1F4E5; Dışa Aktar
+            </button>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="{% url 'presentations:export-pptx' pk=presentation.pk %}">PowerPoint (.pptx)</a></li>
+                <li><a class="dropdown-item text-muted disabled" href="#">PDF (yakında)</a></li>
+            </ul>
+        </div>
+        {% endif %}
+        <form method="post" action="{% url 'presentations:duplicate' pk=presentation.pk %}" class="d-inline">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-outline-secondary" title="Kopyala">&#x1F4CB; Kopyala</button>
+        </form>
+        {% if presentation.is_public %}
+        <button class="btn btn-outline-success" onclick="copyShareLink()" title="Paylaş">
+            &#x1F517; Paylaş
+        </button>
+        {% endif %}
+        <a href="{% url 'presentations:edit' pk=presentation.pk %}" class="btn btn-outline-secondary">Düzenle</a>
     </div>
 </div>
 
-{% if presentation.slides.all %}
-<div class="list-group">
-    {% for slide in presentation.slides.all %}
-    <div class="list-group-item">
-        <div class="d-flex justify-content-between align-items-start">
-            <div>
-                <h5 class="mb-1">{{ forloop.counter }}. {{ slide.heading|default:"Untitled Slide" }}</h5>
-                <p class="mb-1 text-muted">{{ slide.body|truncatewords:30 }}</p>
-                <small class="text-muted">Layout: {{ slide.layout }}</small>
-            </div>
-            <div>
-                <a href="{% url 'presentations:slide-edit' presentation_pk=presentation.pk pk=slide.pk %}" class="btn btn-sm btn-outline-secondary">Edit</a>
-                <form method="post" action="{% url 'presentations:slide-delete' presentation_pk=presentation.pk pk=slide.pk %}" class="d-inline">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this slide?')">Delete</button>
-                </form>
-            </div>
-        </div>
-    </div>
+{% if themes %}
+<div class="d-flex align-items-center gap-2 mb-3 overflow-auto py-1">
+    <span class="text-muted small me-1 flex-shrink-0">Tema:</span>
+    {% for theme in themes %}
+    <form method="post" action="{% url 'presentations:change-theme' pk=presentation.pk %}" class="d-inline">
+        {% csrf_token %}
+        <input type="hidden" name="theme_id" value="{{ theme.pk }}">
+        <button type="submit"
+                class="theme-circle {% if presentation.theme and presentation.theme.pk == theme.pk %}active{% endif %}"
+                style="background: linear-gradient(135deg, {{ theme.primary_color }} 50%, {{ theme.accent_color }} 50%);"
+                title="{{ theme.name }}"></button>
+    </form>
     {% endfor %}
+</div>
+{% endif %}
+
+{% if presentation.slides.all %}
+<div class="slide-grid slide-container"
+     data-reorder-url="{% url 'presentations:slide-reorder' presentation_pk=presentation.pk %}"
+     {% if presentation.theme %}
+     style="
+        --slide-primary: {{ presentation.theme.primary_color }};
+        --slide-secondary: {{ presentation.theme.secondary_color }};
+        --slide-accent: {{ presentation.theme.accent_color }};
+        --slide-font-heading: '{{ presentation.theme.font_heading }}', sans-serif;
+        --slide-font-body: '{{ presentation.theme.font_body }}', sans-serif;
+     "
+     {% endif %}>
+    {% for slide in presentation.slides.all %}
+    {% include "presentations/_slide_card.html" with slide=slide theme=presentation.theme presentation=presentation %}
+    {% endfor %}
+    <a href="{% url 'presentations:slide-create' presentation_pk=presentation.pk %}"
+       class="slide-card slide-card--add" title="Slayt Ekle">
+        <span>+ Slayt Ekle</span>
+    </a>
 </div>
 {% else %}
 <div class="text-center py-5">
-    <p class="text-muted">No slides yet. Add your first slide or generate with AI.</p>
+    <div style="font-size: 3rem; margin-bottom: 1rem;">&#x1F4DD;</div>
+    <h5 class="text-muted">Henüz slayt yok</h5>
+    <p class="text-muted mb-3">AI ile slaytlarınızı oluşturun veya manuel ekleyin.</p>
+    <div class="d-flex gap-2 justify-content-center">
+        <a href="{% url 'presentations:generate' %}" class="btn btn-primary">&#x2728; AI ile Oluştur</a>
+        <a href="{% url 'presentations:slide-create' presentation_pk=presentation.pk %}" class="btn btn-outline-secondary">Manuel Ekle</a>
+    </div>
 </div>
 {% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/slide-reorder.js' %}"></script>
+<script>
+function copyShareLink() {
+    var url = window.location.href;
+    navigator.clipboard.writeText(url).then(function() {
+        if (typeof showToast === 'function') showToast('Link kopyalandı!', 'success');
+        else alert('Link kopyalandı!');
+    });
+}
+</script>
 {% endblock %}
