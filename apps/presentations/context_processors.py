@@ -8,7 +8,7 @@ def sidebar_context(request: HttpRequest) -> dict:
     from apps.presentations.services import presentation_service
 
     recent = presentation_service.get_recent_presentations(request.user.id, limit=5)
-    total_presentations = sum(1 for _ in recent)
+    total_presentations = presentation_service.get_total_presentation_count(request.user.id)
     total_slides = sum(p.slide_count for p in recent)
 
     return {

@@ -16,6 +16,17 @@ from apps.presentations.services import theme_service
 
 
 @login_required
+def dashboard(request: HttpRequest) -> HttpResponse:
+    stats = presentation_service.get_dashboard_stats(owner_id=request.user.id)
+    recent = presentation_service.get_recent_presentations(owner_id=request.user.id, limit=5)
+    return render(request, "presentations/dashboard.html", {
+        "stats": stats,
+        "recent_presentations": recent,
+        "topbar_show_tabs": True,
+    })
+
+
+@login_required
 def presentation_list(request: HttpRequest) -> HttpResponse:
     page = int(request.GET.get("page", 1))
     result = presentation_service.list_user_presentations(

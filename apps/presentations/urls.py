@@ -10,6 +10,8 @@ from apps.presentations.views import (
 app_name = "presentations"
 
 urlpatterns = [
+    # Dashboard
+    path("dashboard/", presentation_views.dashboard, name="dashboard"),
     # Presentations CRUD
     path("", presentation_views.presentation_list, name="list"),
     path("create/", presentation_views.presentation_create, name="create"),

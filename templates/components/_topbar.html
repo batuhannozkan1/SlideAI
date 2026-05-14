@@ -7,33 +7,45 @@
             <h2 class="text-headline-sm font-semibold text-on-surface hidden sm:block">
                 {% block topbar_title %}SlideAI{% endblock %}
             </h2>
+            {% if topbar_show_tabs %}
+            <nav class="hidden md:flex items-center gap-1 ml-2">
+                <a href="{% url 'presentations:list' %}" class="px-3 py-1 text-sm rounded-full bg-surface-container-high text-on-surface font-medium transition-colors">Dosyalarım</a>
+                <a href="#" class="px-3 py-1 text-sm rounded-full text-on-surface-variant hover:bg-surface-container-low transition-colors">Paylaşılan</a>
+                <a href="#" class="px-3 py-1 text-sm rounded-full text-on-surface-variant hover:bg-surface-container-low transition-colors">Arşiv</a>
+            </nav>
+            {% endif %}
         </div>
-        <div class="flex items-center gap-2 sm:gap-4">
-            <div class="flex items-center gap-2 border-r border-outline-variant pr-4 mr-2">
-                <a href="{% url 'presentations:list' %}" class="p-2 text-on-surface-variant hover:text-primary transition-colors rounded-full hover:bg-surface-container" title="Sunumlarım">
-                    <span class="material-symbols-outlined">folder</span>
-                </a>
+
+        <div class="hidden md:flex items-center bg-surface-container-low rounded-xl px-3 py-1.5 w-64">
+            <span class="material-symbols-outlined text-on-surface-variant text-[20px] mr-2">search</span>
+            <input type="text" placeholder="Ara..." class="bg-transparent text-sm text-on-surface placeholder-on-surface-variant outline-none w-full border-none focus:ring-0 p-0" readonly>
+        </div>
+
+        <div class="flex items-center gap-2 sm:gap-3">
+            <button class="hidden sm:flex p-2 text-on-surface-variant hover:text-primary rounded-full hover:bg-surface-container transition-colors">
+                <span class="material-symbols-outlined text-[20px]">notifications</span>
+            </button>
+            <button class="hidden sm:flex p-2 text-on-surface-variant hover:text-primary rounded-full hover:bg-surface-container transition-colors">
+                <span class="material-symbols-outlined text-[20px]">schedule</span>
+            </button>
+            {% if user.is_authenticated %}
+            <div class="hidden sm:flex items-center gap-2 border-l border-outline-variant pl-3 ml-1">
+                <a href="#" class="px-3 py-1.5 text-sm font-medium text-on-surface-variant hover:text-primary border border-outline-variant rounded-xl transition-colors">Paylaş</a>
+                <a href="#" class="px-3 py-1.5 bg-primary text-white text-sm font-medium rounded-xl hover:bg-primary-container transition-colors">Dışa Aktar</a>
             </div>
-            <div class="flex items-center gap-3">
-                {% if user.is_authenticated %}
-                <a href="{% url 'presentations:generate' %}" class="hidden sm:flex px-3 py-1.5 bg-primary text-white font-medium hover:bg-primary-container rounded-xl transition-colors text-sm items-center gap-1">
-                    <span class="material-symbols-outlined text-sm">auto_awesome</span>
-                    Oluştur
-                </a>
-                <div class="relative">
-                    <button data-dropdown="userMenu" class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors cursor-pointer">
-                        <span class="text-sm font-medium">{{ user.email|first|upper }}</span>
-                    </button>
-                    <div id="userMenu" class="dropdown-menu hidden absolute right-0 top-full mt-2 w-48 bg-white rounded-xl border border-outline-variant shadow-lg py-1 z-50">
-                        <a href="{% url 'accounts:profile' %}" class="block px-4 py-2 text-sm text-on-surface hover:bg-surface-container-low transition-colors">Profil</a>
-                        <form method="post" action="{% url 'accounts:logout' %}">
-                            {% csrf_token %}
-                            <button type="submit" class="w-full text-left px-4 py-2 text-sm text-on-surface hover:bg-surface-container-low transition-colors">Çıkış Yap</button>
-                        </form>
-                    </div>
+            <div class="relative ml-2">
+                <button data-dropdown="userMenu" class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors cursor-pointer">
+                    <span class="text-sm font-medium">{{ user.email|first|upper }}</span>
+                </button>
+                <div id="userMenu" class="dropdown-menu hidden absolute right-0 top-full mt-2 w-48 bg-white rounded-xl border border-outline-variant shadow-lg py-1 z-50">
+                    <a href="{% url 'accounts:profile' %}" class="block px-4 py-2 text-sm text-on-surface hover:bg-surface-container-low transition-colors">Profil</a>
+                    <form method="post" action="{% url 'accounts:logout' %}">
+                        {% csrf_token %}
+                        <button type="submit" class="w-full text-left px-4 py-2 text-sm text-on-surface hover:bg-surface-container-low transition-colors">Çıkış Yap</button>
+                    </form>
                 </div>
-                {% endif %}
             </div>
+            {% endif %}
         </div>
     </div>
 </header>

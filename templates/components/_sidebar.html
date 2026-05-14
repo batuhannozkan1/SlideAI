@@ -1,7 +1,7 @@
 {% load nav_tags %}
 <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-sidebar transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col bg-[#0f172a] text-slate-300 py-6 border-r border-slate-800">
     <div class="px-6 mb-8 flex items-center justify-between">
-        <a href="{% url 'presentations:list' %}" class="flex items-center gap-3">
+        <a href="{% url 'presentations:dashboard' %}" class="flex items-center gap-3">
             <div class="w-8 h-8 rounded bg-[#6366f1] flex items-center justify-center text-white font-bold text-lg">S</div>
             <div>
                 <h1 class="text-headline-sm font-bold text-white leading-none">SlideAI</h1>
@@ -27,7 +27,14 @@
 
     <nav class="flex-1 overflow-y-auto sidebar-scroll px-2">
         <ul class="space-y-1">
-            {% active_nav "/presentations/" as nav_presentations %}
+            {% active_url_name "dashboard" as nav_dashboard %}
+            <li>
+                <a class="flex items-center gap-3 px-4 py-2 rounded-lg transition-colors duration-200 {% if nav_dashboard == 'active' %}text-white border-l-2 border-[#6366f1] bg-white/5 rounded-r-lg{% else %}text-slate-400 hover:bg-white/5 hover:text-white border-l-2 border-transparent{% endif %}" href="{% url 'presentations:dashboard' %}">
+                    <span class="material-symbols-outlined">dashboard</span>
+                    Dashboard
+                </a>
+            </li>
+            {% active_url_name "list" as nav_presentations %}
             <li>
                 <a class="flex items-center gap-3 px-4 py-2 rounded-lg transition-colors duration-200 {% if nav_presentations == 'active' %}text-white border-l-2 border-[#6366f1] bg-white/5 rounded-r-lg{% else %}text-slate-400 hover:bg-white/5 hover:text-white border-l-2 border-transparent{% endif %}" href="{% url 'presentations:list' %}">
                     <span class="material-symbols-outlined">slideshow</span>
@@ -35,15 +42,15 @@
                 </a>
             </li>
             <li>
-                <a class="flex items-center gap-3 px-4 py-2 text-slate-400 hover:bg-white/5 hover:text-white transition-colors duration-200 rounded-lg border-l-2 border-transparent" href="{% url 'presentations:generate' %}">
-                    <span class="material-symbols-outlined">auto_awesome</span>
-                    AI ile Oluştur
-                </a>
-            </li>
-            <li>
                 <a class="flex items-center gap-3 px-4 py-2 text-slate-400 hover:bg-white/5 hover:text-white transition-colors duration-200 rounded-lg border-l-2 border-transparent" href="{% url 'presentations:template-gallery' %}">
                     <span class="material-symbols-outlined">auto_awesome_motion</span>
                     Şablonlar
+                </a>
+            </li>
+            <li>
+                <a class="flex items-center gap-3 px-4 py-2 text-slate-400 hover:bg-white/5 hover:text-white transition-colors duration-200 rounded-lg border-l-2 border-transparent" href="#">
+                    <span class="material-symbols-outlined">payments</span>
+                    Faturalama
                 </a>
             </li>
             {% active_nav "/accounts/profile" as nav_profile %}
@@ -72,6 +79,16 @@
     </nav>
 
     <div class="mt-auto px-4">
+        <div class="mb-4 space-y-1">
+            <a class="flex items-center gap-3 px-2 py-1.5 text-sm text-slate-500 hover:text-slate-300 transition-colors" href="#">
+                <span class="material-symbols-outlined text-[18px]">description</span>
+                Dokümantasyon
+            </a>
+            <a class="flex items-center gap-3 px-2 py-1.5 text-sm text-slate-500 hover:text-slate-300 transition-colors" href="#">
+                <span class="material-symbols-outlined text-[18px]">support_agent</span>
+                Destek
+            </a>
+        </div>
         {% if user.is_authenticated %}
         <div class="pt-4 border-t border-slate-800 flex items-center gap-3 px-2">
             <div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-white text-sm font-medium">

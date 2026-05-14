@@ -77,3 +77,14 @@ body {
     border-color: #334155;
     box-shadow: 0 0 0 2px #fff, 0 0 0 4px #334155;
 }
+
+/* Dashboard chart bars */
+.chart-bar {
+    border-radius: 4px 4px 0 0;
+    background: #c0c1ff;
+    min-height: 4px;
+    transition: height 0.3s ease;
+}
+.chart-bar:hover {
+    background: #6366f1;
+}

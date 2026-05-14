@@ -1,11 +1,19 @@
 from __future__ import annotations
 
+from datetime import date, datetime, timedelta
 from uuid import UUID
+
+from django.utils import timezone
 
 from apps.core.dtos import PaginatedResult, ServiceResult
 from apps.core.exceptions import NotFoundError, PermissionDeniedError
-from apps.presentations.dtos import CreatePresentationDTO, UpdatePresentationDTO
+from apps.presentations.dtos import CreatePresentationDTO, DashboardStatsDTO, UpdatePresentationDTO
 from apps.presentations.repositories import presentation_repo
+
+_MONTH_LABELS = (
+    "Oca", "Şub", "Mar", "Nis", "May", "Haz",
+    "Tem", "Ağu", "Eyl", "Eki", "Kas", "Ara",
+)
 
 
 def create_presentation(dto: CreatePresentationDTO) -> ServiceResult:
@@ -84,6 +92,67 @@ def delete_presentation(
 
     presentation_repo.soft_delete(presentation)
     return ServiceResult.ok()
+
+
+def get_total_presentation_count(owner_id: int) -> int:
+    return presentation_repo.count(owner_id=owner_id, is_deleted=False)
+
+
+def get_dashboard_stats(owner_id: int) -> DashboardStatsDTO:
+    total_presentations = presentation_repo.count(owner_id=owner_id, is_deleted=False)
+    total_slides = presentation_repo.total_slide_count(owner_id)
+
+    today = date.today()
+    first_of_this_month = today.replace(day=1)
+    first_of_last_month = (first_of_this_month - timedelta(days=1)).replace(day=1)
+
+    def _aware(d: date) -> datetime:
+        return timezone.make_aware(datetime(d.year, d.month, d.day))
+
+    this_month = presentation_repo.count_created_since(owner_id, _aware(first_of_this_month))
+    last_month_total = presentation_repo.count_created_since(owner_id, _aware(first_of_last_month))
+    last_month = last_month_total - this_month
+
+    if last_month > 0:
+        growth = ((this_month - last_month) / last_month) * 100
+    elif this_month > 0:
+        growth = 100.0
+    else:
+        growth = 0.0
+
+    draft_count = presentation_repo.count(owner_id=owner_id, is_deleted=False, is_public=False)
+    published_count = presentation_repo.count(owner_id=owner_id, is_deleted=False, is_public=True)
+
+    six_months_ago = first_of_this_month
+    for _ in range(5):
+        six_months_ago = (six_months_ago - timedelta(days=1)).replace(day=1)
+
+    raw_counts = presentation_repo.count_created_per_month(owner_id, _aware(six_months_ago))
+    count_map = {row["month"].date().replace(day=1): row["count"] for row in raw_counts}
+
+    labels = []
+    values = []
+    cursor = six_months_ago
+    for _ in range(6):
+        labels.append(_MONTH_LABELS[cursor.month - 1])
+        values.append(count_map.get(cursor, 0))
+        if cursor.month == 12:
+            cursor = cursor.replace(year=cursor.year + 1, month=1)
+        else:
+            cursor = cursor.replace(month=cursor.month + 1)
+
+    chart_values = tuple(values)
+    return DashboardStatsDTO(
+        total_presentations=total_presentations,
+        total_slides=total_slides,
+        presentations_this_month=this_month,
+        growth_percentage=round(growth, 1),
+        draft_count=draft_count,
+        published_count=published_count,
+        chart_labels=tuple(labels),
+        chart_values=chart_values,
+        chart_max=max(chart_values) or 1,
+    )
 
 
 def get_recent_presentations(owner_id: int, *, limit: int = 5) -> tuple:
