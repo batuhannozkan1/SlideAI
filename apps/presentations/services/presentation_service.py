@@ -86,6 +86,10 @@ def delete_presentation(
     return ServiceResult.ok()
 
 
+def get_recent_presentations(owner_id: int, *, limit: int = 5) -> tuple:
+    return tuple(presentation_repo.list_by_owner(owner_id, limit=limit, offset=0))
+
+
 def duplicate_presentation(
     presentation_id: UUID, *, requesting_user_id: int
 ) -> ServiceResult:

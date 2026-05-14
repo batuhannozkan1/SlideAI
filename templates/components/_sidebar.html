@@ -1,0 +1,87 @@
+{% load nav_tags %}
+<aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-sidebar transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col bg-[#0f172a] text-slate-300 py-6 border-r border-slate-800">
+    <div class="px-6 mb-8 flex items-center justify-between">
+        <a href="{% url 'presentations:list' %}" class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded bg-[#6366f1] flex items-center justify-center text-white font-bold text-lg">S</div>
+            <div>
+                <h1 class="text-headline-sm font-bold text-white leading-none">SlideAI</h1>
+                <p class="text-slate-400 text-xs">Pro Workspace</p>
+            </div>
+        </a>
+        <button id="sidebarClose" class="lg:hidden p-1 text-slate-400 hover:text-white">
+            <span class="material-symbols-outlined">close</span>
+        </button>
+    </div>
+
+    <div class="px-4 mb-6">
+        <a href="{% url 'presentations:generate' %}" class="w-full bg-[#6366f1] text-white py-2 px-4 rounded-lg flex items-center justify-center gap-2 font-medium hover:bg-indigo-600 transition-colors shadow-sm">
+            <span class="material-symbols-outlined text-sm">add</span>
+            Yeni Sunum
+        </a>
+        {% if sidebar_total_presentations is not None %}
+        <div class="text-center mt-2">
+            <span class="text-xs text-slate-500">{{ sidebar_total_presentations }} sunum &middot; {{ sidebar_total_slides }} slayt</span>
+        </div>
+        {% endif %}
+    </div>
+
+    <nav class="flex-1 overflow-y-auto sidebar-scroll px-2">
+        <ul class="space-y-1">
+            {% active_nav "/presentations/" as nav_presentations %}
+            <li>
+                <a class="flex items-center gap-3 px-4 py-2 rounded-lg transition-colors duration-200 {% if nav_presentations == 'active' %}text-white border-l-2 border-[#6366f1] bg-white/5 rounded-r-lg{% else %}text-slate-400 hover:bg-white/5 hover:text-white border-l-2 border-transparent{% endif %}" href="{% url 'presentations:list' %}">
+                    <span class="material-symbols-outlined">slideshow</span>
+                    Sunumlarım
+                </a>
+            </li>
+            <li>
+                <a class="flex items-center gap-3 px-4 py-2 text-slate-400 hover:bg-white/5 hover:text-white transition-colors duration-200 rounded-lg border-l-2 border-transparent" href="{% url 'presentations:generate' %}">
+                    <span class="material-symbols-outlined">auto_awesome</span>
+                    AI ile Oluştur
+                </a>
+            </li>
+            <li>
+                <a class="flex items-center gap-3 px-4 py-2 text-slate-400 hover:bg-white/5 hover:text-white transition-colors duration-200 rounded-lg border-l-2 border-transparent" href="{% url 'presentations:template-gallery' %}">
+                    <span class="material-symbols-outlined">auto_awesome_motion</span>
+                    Şablonlar
+                </a>
+            </li>
+            {% active_nav "/accounts/profile" as nav_profile %}
+            <li>
+                <a class="flex items-center gap-3 px-4 py-2 rounded-lg transition-colors duration-200 {% if nav_profile == 'active' %}text-white border-l-2 border-[#6366f1] bg-white/5 rounded-r-lg{% else %}text-slate-400 hover:bg-white/5 hover:text-white border-l-2 border-transparent{% endif %}" href="{% url 'accounts:profile' %}">
+                    <span class="material-symbols-outlined">settings</span>
+                    Ayarlar
+                </a>
+            </li>
+        </ul>
+
+        {% if sidebar_recent_presentations %}
+        <div class="mt-8 px-4">
+            <p class="text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wider">Son Kullanılan</p>
+            <ul class="space-y-1">
+                {% for p in sidebar_recent_presentations %}
+                <li>
+                    <a class="block px-2 py-1.5 text-sm text-slate-400 hover:text-white truncate transition-colors duration-200" href="{% url 'presentations:detail' pk=p.pk %}">
+                        {{ p.title }}
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+    </nav>
+
+    <div class="mt-auto px-4">
+        {% if user.is_authenticated %}
+        <div class="pt-4 border-t border-slate-800 flex items-center gap-3 px-2">
+            <div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-white text-sm font-medium">
+                {{ user.email|first|upper }}
+            </div>
+            <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium text-white truncate">{{ user.get_full_name|default:user.email }}</p>
+                <p class="text-xs text-slate-500 truncate">{{ user.email }}</p>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</aside>

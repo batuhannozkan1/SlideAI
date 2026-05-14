@@ -1,21 +1,19 @@
 {% if result.total_pages > 1 %}
-<nav>
-    <ul class="pagination justify-content-center">
-        {% if result.has_previous %}
-        <li class="page-item">
-            <a class="page-link" href="?page={{ result.page|add:"-1" }}">Previous</a>
-        </li>
-        {% endif %}
+<nav class="flex items-center justify-center gap-1 mt-8">
+    {% if result.has_previous %}
+    <a href="?page={{ result.page|add:"-1" }}" class="px-3 py-2 text-sm text-on-surface-variant hover:text-primary hover:bg-surface-container-low rounded-lg transition-colors">
+        <span class="material-symbols-outlined text-sm align-middle">chevron_left</span>
+    </a>
+    {% endif %}
 
-        <li class="page-item active">
-            <span class="page-link">Page {{ result.page }} of {{ result.total_pages }}</span>
-        </li>
+    <span class="px-3 py-2 text-sm font-medium text-on-surface">
+        {{ result.page }} / {{ result.total_pages }}
+    </span>
 
-        {% if result.has_next %}
-        <li class="page-item">
-            <a class="page-link" href="?page={{ result.page|add:"1" }}">Next</a>
-        </li>
-        {% endif %}
-    </ul>
+    {% if result.has_next %}
+    <a href="?page={{ result.page|add:"1" }}" class="px-3 py-2 text-sm text-on-surface-variant hover:text-primary hover:bg-surface-container-low rounded-lg transition-colors">
+        <span class="material-symbols-outlined text-sm align-middle">chevron_right</span>
+    </a>
+    {% endif %}
 </nav>
 {% endif %}

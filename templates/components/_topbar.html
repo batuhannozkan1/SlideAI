@@ -1,0 +1,39 @@
+<header class="bg-surface-container-lowest text-on-surface fixed top-0 right-0 left-0 lg:left-sidebar h-topbar border-b border-outline-variant shadow-sm z-10">
+    <div class="flex justify-between items-center px-4 md:px-6 w-full h-full">
+        <div class="flex items-center gap-4">
+            <button id="sidebarOpen" class="lg:hidden p-2 text-on-surface-variant hover:text-primary transition-colors">
+                <span class="material-symbols-outlined">menu</span>
+            </button>
+            <h2 class="text-headline-sm font-semibold text-on-surface hidden sm:block">
+                {% block topbar_title %}SlideAI{% endblock %}
+            </h2>
+        </div>
+        <div class="flex items-center gap-2 sm:gap-4">
+            <div class="flex items-center gap-2 border-r border-outline-variant pr-4 mr-2">
+                <a href="{% url 'presentations:list' %}" class="p-2 text-on-surface-variant hover:text-primary transition-colors rounded-full hover:bg-surface-container" title="Sunumlarım">
+                    <span class="material-symbols-outlined">folder</span>
+                </a>
+            </div>
+            <div class="flex items-center gap-3">
+                {% if user.is_authenticated %}
+                <a href="{% url 'presentations:generate' %}" class="hidden sm:flex px-3 py-1.5 bg-primary text-white font-medium hover:bg-primary-container rounded-xl transition-colors text-sm items-center gap-1">
+                    <span class="material-symbols-outlined text-sm">auto_awesome</span>
+                    Oluştur
+                </a>
+                <div class="relative">
+                    <button data-dropdown="userMenu" class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors cursor-pointer">
+                        <span class="text-sm font-medium">{{ user.email|first|upper }}</span>
+                    </button>
+                    <div id="userMenu" class="dropdown-menu hidden absolute right-0 top-full mt-2 w-48 bg-white rounded-xl border border-outline-variant shadow-lg py-1 z-50">
+                        <a href="{% url 'accounts:profile' %}" class="block px-4 py-2 text-sm text-on-surface hover:bg-surface-container-low transition-colors">Profil</a>
+                        <form method="post" action="{% url 'accounts:logout' %}">
+                            {% csrf_token %}
+                            <button type="submit" class="w-full text-left px-4 py-2 text-sm text-on-surface hover:bg-surface-container-low transition-colors">Çıkış Yap</button>
+                        </form>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</header>
