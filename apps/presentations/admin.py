@@ -5,8 +5,8 @@ from apps.presentations.models import Presentation, Slide, SlideTemplate, Theme
 
 @admin.register(Presentation)
 class PresentationAdmin(admin.ModelAdmin):
-    list_display = ("title", "owner", "is_public", "slide_count", "created_at")
-    list_filter = ("is_public", "is_deleted")
+    list_display = ("title", "owner", "theme", "is_public", "slide_count", "created_at")
+    list_filter = ("is_public", "is_deleted", "theme")
     search_fields = ("title",)
     raw_id_fields = ("owner",)
 
@@ -26,5 +26,6 @@ class SlideTemplateAdmin(admin.ModelAdmin):
 
 @admin.register(Theme)
 class ThemeAdmin(admin.ModelAdmin):
-    list_display = ("name", "primary_color", "is_active")
+    list_display = ("name", "primary_color", "secondary_color", "accent_color", "is_active")
     list_filter = ("is_active",)
+    search_fields = ("name",)

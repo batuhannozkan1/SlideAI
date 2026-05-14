@@ -84,3 +84,37 @@ def delete_presentation(
 
     presentation_repo.soft_delete(presentation)
     return ServiceResult.ok()
+
+
+def duplicate_presentation(
+    presentation_id: UUID, *, requesting_user_id: int
+) -> ServiceResult:
+    from apps.presentations.repositories import slide_repo
+
+    source = presentation_repo.get_with_slides(presentation_id)
+    if source is None:
+        raise NotFoundError("Presentation", presentation_id)
+
+    if source.owner_id != requesting_user_id and not source.is_public:
+        raise PermissionDeniedError("Bu sunuma erişim izniniz yok.")
+
+    copy = presentation_repo.create(
+        title=f"{source.title} (Kopya)",
+        description=source.description,
+        owner_id=requesting_user_id,
+        theme_id=source.theme_id,
+    )
+
+    slides = list(source.slides.all().order_by("position"))
+    for slide in slides:
+        slide_repo.create(
+            presentation_id=copy.pk,
+            heading=slide.heading,
+            body=slide.body,
+            notes=slide.notes,
+            layout=slide.layout,
+            position=slide.position,
+        )
+
+    presentation_repo.update(copy, slide_count=len(slides))
+    return ServiceResult.ok(data=copy)
