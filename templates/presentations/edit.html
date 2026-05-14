@@ -1,28 +1,39 @@
 {% extends "base.html" %}
 
-{% block title %}Edit {{ presentation.title }} — SlideAI{% endblock %}
+{% block title %}Düzenle: {{ presentation.title }} — SlideAI{% endblock %}
 
 {% block content %}
 <div class="row justify-content-center">
     <div class="col-md-8">
-        <h2 class="mb-4">Edit Presentation</h2>
+        <h2 class="mb-4">Sunumu Düzenle</h2>
         <form method="post">
             {% csrf_token %}
             <div class="mb-3">
-                <label for="id_title" class="form-label">Title</label>
-                <input type="text" name="title" id="id_title" class="form-control" value="{{ form.title.value|default:"" }}">
+                <label for="id_title" class="form-label">Başlık</label>
+                <input type="text" name="title" id="id_title" class="form-control" value="{{ form.title.value|default:'' }}">
             </div>
             <div class="mb-3">
-                <label for="id_description" class="form-label">Description</label>
-                <textarea name="description" id="id_description" class="form-control" rows="3">{{ form.description.value|default:"" }}</textarea>
+                <label for="id_description" class="form-label">Açıklama</label>
+                <textarea name="description" id="id_description" class="form-control" rows="3">{{ form.description.value|default:'' }}</textarea>
+            </div>
+            <div class="mb-3">
+                <label for="id_theme" class="form-label">Tema</label>
+                <select name="theme" id="id_theme" class="form-select">
+                    <option value="">Tema seçin...</option>
+                    {% for theme in form.theme.field.queryset %}
+                    <option value="{{ theme.pk }}" {% if form.theme.value|stringformat:"s" == theme.pk|stringformat:"s" %}selected{% endif %}>
+                        {{ theme.name }}
+                    </option>
+                    {% endfor %}
+                </select>
             </div>
             <div class="mb-3 form-check">
                 <input type="checkbox" name="is_public" id="id_is_public" class="form-check-input" {% if form.is_public.value %}checked{% endif %}>
-                <label for="id_is_public" class="form-check-label">Make public</label>
+                <label for="id_is_public" class="form-check-label">Herkese açık</label>
             </div>
-            <button type="submit" class="btn btn-primary">Save</button>
-            <a href="{% url 'presentations:detail' pk=presentation.pk %}" class="btn btn-outline-secondary">Cancel</a>
-            <a href="{% url 'presentations:delete' pk=presentation.pk %}" class="btn btn-outline-danger float-end">Delete</a>
+            <button type="submit" class="btn btn-primary">Kaydet</button>
+            <a href="{% url 'presentations:detail' pk=presentation.pk %}" class="btn btn-outline-secondary">İptal</a>
+            <a href="{% url 'presentations:delete' pk=presentation.pk %}" class="btn btn-outline-danger float-end">Sil</a>
         </form>
     </div>
 </div>
