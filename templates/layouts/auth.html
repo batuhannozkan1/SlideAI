@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block body_class %}bg-[#f8fafc] min-h-screen flex items-center justify-center{% endblock %}
+
+{% block body %}
+<div class="w-full max-w-md px-4">
+    <div class="text-center mb-8">
+        <a href="{% url 'landing' %}" class="inline-flex items-center gap-2">
+            <div class="w-10 h-10 rounded-lg bg-primary flex items-center justify-center text-white font-bold text-xl">S</div>
+            <span class="text-2xl font-semibold text-on-surface">SlideAI</span>
+        </a>
+    </div>
+
+    <div class="bg-white rounded-xl border border-outline-variant p-8 shadow-sm">
+        <h2 class="text-headline-sm font-semibold text-on-surface mb-1">{% block auth_title %}{% endblock %}</h2>
+        <p class="text-body-md text-on-surface-variant mb-6">{% block auth_subtitle %}{% endblock %}</p>
+
+        {% include "components/_messages.html" %}
+
+        {% block auth_content %}{% endblock %}
+    </div>
+
+    <div class="text-center mt-6 text-body-md text-on-surface-variant">
+        {% block auth_footer %}{% endblock %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block body_class %}bg-[#f8fafc] min-h-screen flex items-center justify-center{% endblock %}
+
+{% block body %}
+<div class="text-center px-4">
+    <div class="w-16 h-16 rounded-full bg-surface-container-high flex items-center justify-center mx-auto mb-6">
+        <span class="material-symbols-outlined text-3xl text-on-surface-variant">{% block error_icon %}error{% endblock %}</span>
+    </div>
+    <h1 class="text-headline-lg font-semibold text-on-surface mb-2">{% block error_title %}Hata{% endblock %}</h1>
+    <p class="text-body-lg text-on-surface-variant mb-8">{% block error_message %}Bir sorun oluştu.{% endblock %}</p>
+    {% block error_action %}
+    <a href="/" class="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-xl font-medium hover:bg-primary-container transition-colors">
+        <span class="material-symbols-outlined text-sm">home</span>
+        Ana Sayfa
+    </a>
+    {% endblock %}
+</div>
+{% endblock %}
