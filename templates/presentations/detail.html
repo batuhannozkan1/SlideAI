@@ -1,32 +1,22 @@
-{% extends "base.html" %}
+{% extends "layouts/app.html" %}
 {% load static %}
 
 {% block title %}{{ presentation.title }} — SlideAI{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/slides.css' %}">
-<style>
-    .theme-circle {
-        width: 32px; height: 32px; border-radius: 50%;
-        border: 2px solid transparent; cursor: pointer;
-        transition: transform 0.15s, border-color 0.15s;
-        display: inline-block;
-    }
-    .theme-circle:hover { transform: scale(1.15); }
-    .theme-circle.active { border-color: #333; box-shadow: 0 0 0 2px #fff, 0 0 0 4px #333; }
-</style>
 {% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-start mb-3">
-    <div>
-        <h2 class="mb-1">{{ presentation.title }}</h2>
+<div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-4">
+    <div class="min-w-0">
+        <h2 class="text-2xl font-semibold text-on-surface truncate">{{ presentation.title }}</h2>
         {% if presentation.description %}
-        <p class="text-muted mb-1">{{ presentation.description }}</p>
+        <p class="text-sm text-on-surface-variant mt-1">{{ presentation.description }}</p>
         {% endif %}
-        <div class="d-flex align-items-center gap-2 text-muted small">
+        <div class="flex items-center gap-2 mt-2 text-xs text-on-surface-variant">
             {% if presentation.theme %}
-            <span class="d-inline-flex align-items-center gap-1">
+            <span class="inline-flex items-center gap-1">
                 <span class="color-dot" style="background:{{ presentation.theme.primary_color }};"></span>
                 {{ presentation.theme.name }}
             </span>
@@ -35,43 +25,50 @@
             <span>{{ presentation.slide_count }} slayt</span>
             {% if presentation.is_public %}
             <span>&middot;</span>
-            <span class="badge bg-success">Herkese Açık</span>
+            <span class="px-1.5 py-0.5 bg-emerald-50 text-emerald-700 rounded">Herkese Açık</span>
             {% endif %}
         </div>
     </div>
-    <div class="d-flex gap-2 flex-shrink-0 flex-wrap justify-content-end">
+    <div class="flex gap-2 flex-shrink-0 flex-wrap">
         {% if presentation.slides.all %}
-        <a href="{% url 'presentations:present' pk=presentation.pk %}" class="btn btn-dark">
-            &#9654; Sunum Yap
+        <a href="{% url 'presentations:present' pk=presentation.pk %}" class="px-3 py-2 bg-inverse-surface text-inverse-on-surface font-medium rounded-xl hover:bg-slate-700 transition-colors text-sm flex items-center gap-1">
+            <span class="material-symbols-outlined text-sm">play_arrow</span>
+            Sunum Yap
         </a>
-        <div class="dropdown">
-            <button class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
-                &#x1F4E5; Dışa Aktar
+        <div class="relative">
+            <button data-dropdown="exportMenu" class="px-3 py-2 border border-outline-variant text-on-surface rounded-xl hover:bg-surface-container-low transition-colors text-sm font-medium flex items-center gap-1">
+                <span class="material-symbols-outlined text-sm">download</span>
+                Dışa Aktar
             </button>
-            <ul class="dropdown-menu">
-                <li><a class="dropdown-item" href="{% url 'presentations:export-pptx' pk=presentation.pk %}">PowerPoint (.pptx)</a></li>
-                <li><a class="dropdown-item text-muted disabled" href="#">PDF (yakında)</a></li>
-            </ul>
+            <div id="exportMenu" class="dropdown-menu hidden absolute right-0 top-full mt-1 w-48 bg-white rounded-xl border border-outline-variant shadow-lg py-1 z-50">
+                <a href="{% url 'presentations:export-pptx' pk=presentation.pk %}" class="block px-4 py-2 text-sm text-on-surface hover:bg-surface-container-low transition-colors">PowerPoint (.pptx)</a>
+                <span class="block px-4 py-2 text-sm text-on-surface-variant/50 cursor-not-allowed">PDF (yakında)</span>
+            </div>
         </div>
         {% endif %}
-        <form method="post" action="{% url 'presentations:duplicate' pk=presentation.pk %}" class="d-inline">
+        <form method="post" action="{% url 'presentations:duplicate' pk=presentation.pk %}" class="inline">
             {% csrf_token %}
-            <button type="submit" class="btn btn-outline-secondary" title="Kopyala">&#x1F4CB; Kopyala</button>
+            <button type="submit" class="px-3 py-2 border border-outline-variant text-on-surface rounded-xl hover:bg-surface-container-low transition-colors text-sm font-medium flex items-center gap-1" title="Kopyala">
+                <span class="material-symbols-outlined text-sm">content_copy</span>
+                Kopyala
+            </button>
         </form>
         {% if presentation.is_public %}
-        <button class="btn btn-outline-success" onclick="copyShareLink()" title="Paylaş">
-            &#x1F517; Paylaş
+        <button onclick="copyShareLink()" class="px-3 py-2 border border-outline-variant text-on-surface rounded-xl hover:bg-surface-container-low transition-colors text-sm font-medium flex items-center gap-1" title="Paylaş">
+            <span class="material-symbols-outlined text-sm">share</span>
         </button>
         {% endif %}
-        <a href="{% url 'presentations:edit' pk=presentation.pk %}" class="btn btn-outline-secondary">Düzenle</a>
+        <a href="{% url 'presentations:edit' pk=presentation.pk %}" class="px-3 py-2 border border-outline-variant text-on-surface rounded-xl hover:bg-surface-container-low transition-colors text-sm font-medium flex items-center gap-1">
+            <span class="material-symbols-outlined text-sm">edit</span>
+        </a>
     </div>
 </div>
 
 {% if themes %}
-<div class="d-flex align-items-center gap-2 mb-3 overflow-auto py-1">
-    <span class="text-muted small me-1 flex-shrink-0">Tema:</span>
+<div class="flex items-center gap-2 mb-4 overflow-auto py-1">
+    <span class="text-xs text-on-surface-variant flex-shrink-0 mr-1">Tema:</span>
     {% for theme in themes %}
-    <form method="post" action="{% url 'presentations:change-theme' pk=presentation.pk %}" class="d-inline">
+    <form method="post" action="{% url 'presentations:change-theme' pk=presentation.pk %}" class="inline">
         {% csrf_token %}
         <input type="hidden" name="theme_id" value="{{ theme.pk }}">
         <button type="submit"
@@ -104,13 +101,20 @@
     </a>
 </div>
 {% else %}
-<div class="text-center py-5">
-    <div style="font-size: 3rem; margin-bottom: 1rem;">&#x1F4DD;</div>
-    <h5 class="text-muted">Henüz slayt yok</h5>
-    <p class="text-muted mb-3">AI ile slaytlarınızı oluşturun veya manuel ekleyin.</p>
-    <div class="d-flex gap-2 justify-content-center">
-        <a href="{% url 'presentations:generate' %}" class="btn btn-primary">&#x2728; AI ile Oluştur</a>
-        <a href="{% url 'presentations:slide-create' presentation_pk=presentation.pk %}" class="btn btn-outline-secondary">Manuel Ekle</a>
+<div class="text-center py-16">
+    <div class="w-16 h-16 rounded-full bg-surface-container-high flex items-center justify-center mx-auto mb-4">
+        <span class="material-symbols-outlined text-3xl text-on-surface-variant">note_add</span>
+    </div>
+    <h3 class="text-lg font-semibold text-on-surface mb-2">Henüz slayt yok</h3>
+    <p class="text-on-surface-variant mb-6">AI ile slaytlarınızı oluşturun veya manuel ekleyin.</p>
+    <div class="flex gap-3 justify-center">
+        <a href="{% url 'presentations:generate' %}" class="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white font-medium rounded-xl hover:bg-primary-container transition-colors text-sm">
+            <span class="material-symbols-outlined text-sm">auto_awesome</span>
+            AI ile Oluştur
+        </a>
+        <a href="{% url 'presentations:slide-create' presentation_pk=presentation.pk %}" class="px-4 py-2 border border-outline-variant text-on-surface rounded-xl hover:bg-surface-container-low transition-colors text-sm font-medium">
+            Manuel Ekle
+        </a>
     </div>
 </div>
 {% endif %}
@@ -120,10 +124,8 @@
 <script src="{% static 'js/slide-reorder.js' %}"></script>
 <script>
 function copyShareLink() {
-    var url = window.location.href;
-    navigator.clipboard.writeText(url).then(function() {
+    navigator.clipboard.writeText(window.location.href).then(function() {
         if (typeof showToast === 'function') showToast('Link kopyalandı!', 'success');
-        else alert('Link kopyalandı!');
     });
 }
 </script>

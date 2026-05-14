@@ -1,13 +1,24 @@
-{% extends "base.html" %}
+{% extends "layouts/app.html" %}
 
 {% block title %}{{ template.name }} — SlideAI{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-8">
-        <h2>{{ template.name }}</h2>
-        <p>{{ template.description }}</p>
-        <a href="{% url 'presentations:template-gallery' %}" class="btn btn-outline-secondary">Back to Templates</a>
+<div class="max-w-2xl">
+    <div class="flex items-center gap-3 mb-6">
+        <a href="{% url 'presentations:template-gallery' %}" class="p-2 text-on-surface-variant hover:text-primary hover:bg-surface-container-low rounded-lg transition-colors">
+            <span class="material-symbols-outlined">arrow_back</span>
+        </a>
+        <div>
+            <h2 class="text-2xl font-semibold text-on-surface">{{ template.name }}</h2>
+            <p class="text-sm text-on-surface-variant mt-1">{{ template.description }}</p>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-xl border border-outline-variant p-6 shadow-sm">
+        <a href="{% url 'presentations:template-gallery' %}" class="inline-flex items-center gap-2 px-4 py-2 border border-outline-variant text-on-surface rounded-xl hover:bg-surface-container-low transition-colors text-sm font-medium">
+            <span class="material-symbols-outlined text-sm">arrow_back</span>
+            Şablonlara Dön
+        </a>
     </div>
 </div>
 {% endblock %}

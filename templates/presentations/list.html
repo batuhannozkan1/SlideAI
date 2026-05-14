@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "layouts/app.html" %}
 {% load static %}
 
 {% block title %}Sunumlarım — SlideAI{% endblock %}
@@ -8,64 +8,76 @@
 {% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2>Sunumlarım</h2>
-    <div class="d-flex gap-2">
-        <a href="{% url 'presentations:generate' %}" class="btn btn-primary">&#x2728; AI ile Oluştur</a>
-        <a href="{% url 'presentations:create' %}" class="btn btn-outline-secondary">Manuel Oluştur</a>
+<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+    <div>
+        <h2 class="text-2xl md:text-3xl font-semibold text-slate-900">Sunumlarım</h2>
+        <p class="text-sm text-slate-500 mt-1">Tüm sunumlarınızı yönetin</p>
+    </div>
+    <div class="flex gap-2">
+        <a href="{% url 'presentations:generate' %}" class="px-4 py-2 bg-primary text-white font-medium rounded-xl hover:bg-primary-container transition-colors text-sm flex items-center gap-1">
+            <span class="material-symbols-outlined text-sm">auto_awesome</span>
+            AI ile Oluştur
+        </a>
+        <a href="{% url 'presentations:create' %}" class="px-4 py-2 border border-outline-variant text-on-surface rounded-xl hover:bg-surface-container-low transition-colors text-sm font-medium">
+            Manuel Oluştur
+        </a>
     </div>
 </div>
 
 {% if result.items %}
-<div class="row">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
     {% for presentation in result.items %}
-    <div class="col-md-6 col-lg-4 mb-4">
-        <div class="card h-100">
-            {% with first_slide=presentation.slides.first %}
-            {% if first_slide and presentation.theme %}
-            <div class="card-img-top slide-mini-preview"
-                 style="--slide-primary: {{ presentation.theme.primary_color }};
-                        --slide-secondary: {{ presentation.theme.secondary_color }};">
-                <div class="slide-card__heading">{{ first_slide.heading|truncatewords:6 }}</div>
-            </div>
-            {% elif first_slide %}
-            <div class="card-img-top slide-mini-preview">
-                <div class="slide-card__heading">{{ first_slide.heading|truncatewords:6 }}</div>
-            </div>
+    <a href="{% url 'presentations:detail' pk=presentation.pk %}" class="bg-white rounded-xl border border-outline-variant shadow-sm hover:shadow-md hover:border-primary/30 transition-all overflow-hidden group">
+        {% with first_slide=presentation.slides.first %}
+        {% if first_slide and presentation.theme %}
+        <div class="slide-mini-preview"
+             style="--slide-primary: {{ presentation.theme.primary_color }};
+                    --slide-secondary: {{ presentation.theme.secondary_color }};">
+            <div class="slide-card__heading">{{ first_slide.heading|truncatewords:6 }}</div>
+        </div>
+        {% elif first_slide %}
+        <div class="slide-mini-preview">
+            <div class="slide-card__heading">{{ first_slide.heading|truncatewords:6 }}</div>
+        </div>
+        {% else %}
+        <div class="aspect-video bg-surface-container flex items-center justify-center">
+            <span class="material-symbols-outlined text-3xl text-on-surface-variant/40">slideshow</span>
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        <div class="p-4">
+            <h3 class="font-semibold text-on-surface group-hover:text-primary transition-colors truncate">{{ presentation.title }}</h3>
+            {% if presentation.description %}
+            <p class="text-sm text-on-surface-variant mt-1 line-clamp-2">{{ presentation.description|truncatewords:15 }}</p>
             {% endif %}
-            {% endwith %}
-            <div class="card-body">
-                <h5 class="card-title">{{ presentation.title }}</h5>
-                {% if presentation.description %}
-                <p class="card-text text-muted small">{{ presentation.description|truncatewords:15 }}</p>
+            <div class="flex items-center gap-2 mt-3 text-xs text-on-surface-variant">
+                <span>{{ presentation.slide_count }} slayt</span>
+                {% if presentation.theme %}
+                <span class="color-dot" style="background:{{ presentation.theme.primary_color }};"></span>
                 {% endif %}
-                <div class="d-flex align-items-center gap-2">
-                    <small class="text-muted">{{ presentation.slide_count }} slayt</small>
-                    {% if presentation.theme %}
-                    <span style="width:10px;height:10px;border-radius:50%;background:{{ presentation.theme.primary_color }};display:inline-block;border:1px solid #ddd;"></span>
-                    {% endif %}
-                    {% if presentation.is_public %}
-                    <span class="badge bg-success">Herkese Açık</span>
-                    {% endif %}
-                </div>
-            </div>
-            <div class="card-footer bg-transparent border-top-0">
-                <a href="{% url 'presentations:detail' pk=presentation.pk %}" class="btn btn-sm btn-outline-primary">Aç</a>
-                <a href="{% url 'presentations:edit' pk=presentation.pk %}" class="btn btn-sm btn-outline-secondary">Düzenle</a>
+                {% if presentation.is_public %}
+                <span class="px-1.5 py-0.5 bg-emerald-50 text-emerald-700 rounded text-xs">Herkese Açık</span>
+                {% endif %}
             </div>
         </div>
-    </div>
+    </a>
     {% endfor %}
 </div>
 
 {% include "components/_pagination.html" %}
 
 {% else %}
-<div class="text-center py-5">
-    <div style="font-size: 3rem; margin-bottom: 1rem;">&#x1F3AC;</div>
-    <h4 class="text-muted">Henüz sunum yok</h4>
-    <p class="text-muted">AI ile ilk sunumunuzu oluşturun.</p>
-    <a href="{% url 'presentations:generate' %}" class="btn btn-primary btn-lg">&#x2728; Hemen Başla</a>
+<div class="text-center py-16">
+    <div class="w-16 h-16 rounded-full bg-surface-container-high flex items-center justify-center mx-auto mb-4">
+        <span class="material-symbols-outlined text-3xl text-on-surface-variant">slideshow</span>
+    </div>
+    <h3 class="text-lg font-semibold text-on-surface mb-2">Henüz sunum yok</h3>
+    <p class="text-on-surface-variant mb-6">AI ile ilk sunumunuzu oluşturun.</p>
+    <a href="{% url 'presentations:generate' %}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-white font-medium rounded-xl hover:bg-primary-container transition-colors">
+        <span class="material-symbols-outlined text-sm">auto_awesome</span>
+        Hemen Başla
+    </a>
 </div>
 {% endif %}
 {% endblock %}

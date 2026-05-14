@@ -1,19 +1,30 @@
-{% extends "base.html" %}
+{% extends "layouts/app.html" %}
 
-{% block title %}Delete {{ presentation.title }} — SlideAI{% endblock %}
+{% block title %}Sil: {{ presentation.title }} — SlideAI{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6">
-        <h2 class="mb-4">Delete Presentation</h2>
-        <div class="alert alert-danger">
-            <p>Are you sure you want to delete <strong>{{ presentation.title }}</strong>?</p>
-            <p class="mb-0">This action cannot be undone.</p>
+<div class="max-w-lg mx-auto">
+    <div class="bg-white rounded-xl border border-outline-variant p-6 shadow-sm">
+        <div class="flex items-center gap-3 mb-4">
+            <div class="w-10 h-10 rounded-full bg-error-container flex items-center justify-center">
+                <span class="material-symbols-outlined text-error">warning</span>
+            </div>
+            <h2 class="text-lg font-semibold text-on-surface">Sunumu Sil</h2>
         </div>
-        <form method="post" action="{% url 'presentations:delete' pk=presentation.pk %}">
+
+        <div class="p-4 bg-red-50 border border-red-200 rounded-lg mb-6">
+            <p class="text-sm text-red-800"><strong>{{ presentation.title }}</strong> sunumunu silmek istediğinizden emin misiniz?</p>
+            <p class="text-sm text-red-700 mt-1">Bu işlem geri alınamaz.</p>
+        </div>
+
+        <form method="post" action="{% url 'presentations:delete' pk=presentation.pk %}" class="flex gap-3">
             {% csrf_token %}
-            <button type="submit" class="btn btn-danger">Yes, Delete</button>
-            <a href="{% url 'presentations:detail' pk=presentation.pk %}" class="btn btn-outline-secondary">Cancel</a>
+            <button type="submit" class="px-4 py-2 bg-error text-white font-medium rounded-xl hover:bg-red-700 transition-colors text-sm">
+                Evet, Sil
+            </button>
+            <a href="{% url 'presentations:detail' pk=presentation.pk %}" class="px-4 py-2 border border-outline-variant text-on-surface rounded-xl hover:bg-surface-container-low transition-colors text-sm font-medium">
+                İptal
+            </a>
         </form>
     </div>
 </div>

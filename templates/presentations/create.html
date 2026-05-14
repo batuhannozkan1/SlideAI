@@ -1,34 +1,42 @@
-{% extends "base.html" %}
+{% extends "layouts/app.html" %}
 
 {% block title %}Yeni Sunum — SlideAI{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-8">
-        <h2 class="mb-4">Yeni Sunum</h2>
-        <form method="post">
+<div class="max-w-2xl">
+    <h2 class="text-2xl font-semibold text-on-surface mb-6">Yeni Sunum</h2>
+
+    <div class="bg-white rounded-xl border border-outline-variant p-6 shadow-sm">
+        <form method="post" class="space-y-4">
             {% csrf_token %}
-            <div class="mb-3">
-                <label for="id_title" class="form-label">Başlık</label>
-                <input type="text" name="title" id="id_title" class="form-control" required maxlength="255">
+            <div>
+                <label for="id_title" class="block text-sm font-medium text-on-surface mb-1">Başlık</label>
+                <input type="text" name="title" id="id_title" required maxlength="255" autofocus
+                       class="w-full px-3 py-2 border border-outline-variant rounded-lg text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary">
             </div>
-            <div class="mb-3">
-                <label for="id_description" class="form-label">Açıklama</label>
-                <textarea name="description" id="id_description" class="form-control" rows="3"></textarea>
+            <div>
+                <label for="id_description" class="block text-sm font-medium text-on-surface mb-1">Açıklama</label>
+                <textarea name="description" id="id_description" rows="3"
+                          class="w-full px-3 py-2 border border-outline-variant rounded-lg text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"></textarea>
             </div>
-            <div class="mb-3">
-                <label for="id_theme" class="form-label">Tema</label>
-                <select name="theme" id="id_theme" class="form-select">
+            <div>
+                <label for="id_theme" class="block text-sm font-medium text-on-surface mb-1">Tema</label>
+                <select name="theme" id="id_theme"
+                        class="w-full px-3 py-2 border border-outline-variant rounded-lg text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary bg-white">
                     <option value="">Tema seçin...</option>
                     {% for theme in form.theme.field.queryset %}
-                    <option value="{{ theme.pk }}">
-                        {{ theme.name }}
-                    </option>
+                    <option value="{{ theme.pk }}">{{ theme.name }}</option>
                     {% endfor %}
                 </select>
             </div>
-            <button type="submit" class="btn btn-primary">Oluştur</button>
-            <a href="{% url 'presentations:list' %}" class="btn btn-outline-secondary">İptal</a>
+            <div class="flex gap-3 pt-2">
+                <button type="submit" class="px-4 py-2 bg-primary text-white font-medium rounded-xl hover:bg-primary-container transition-colors text-sm">
+                    Oluştur
+                </button>
+                <a href="{% url 'presentations:list' %}" class="px-4 py-2 border border-outline-variant text-on-surface rounded-xl hover:bg-surface-container-low transition-colors text-sm font-medium">
+                    İptal
+                </a>
+            </div>
         </form>
     </div>
 </div>
