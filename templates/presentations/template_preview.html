@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block title %}{{ template.name }} — SlideAI{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <h2>{{ template.name }}</h2>
+        <p>{{ template.description }}</p>
+        <a href="{% url 'presentations:template-gallery' %}" class="btn btn-outline-secondary">Back to Templates</a>
+    </div>
+</div>
+{% endblock %}

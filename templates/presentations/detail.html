@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}{{ presentation.title }} — SlideAI{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2>{{ presentation.title }}</h2>
+        <p class="text-muted">{{ presentation.description }}</p>
+    </div>
+    <div>
+        <a href="{% url 'presentations:edit' pk=presentation.pk %}" class="btn btn-outline-secondary">Edit</a>
+        <a href="{% url 'presentations:slide-create' presentation_pk=presentation.pk %}" class="btn btn-primary">Add Slide</a>
+    </div>
+</div>
+
+{% if presentation.slides.all %}
+<div class="list-group">
+    {% for slide in presentation.slides.all %}
+    <div class="list-group-item">
+        <div class="d-flex justify-content-between align-items-start">
+            <div>
+                <h5 class="mb-1">{{ forloop.counter }}. {{ slide.heading|default:"Untitled Slide" }}</h5>
+                <p class="mb-1 text-muted">{{ slide.body|truncatewords:30 }}</p>
+                <small class="text-muted">Layout: {{ slide.layout }}</small>
+            </div>
+            <div>
+                <a href="{% url 'presentations:slide-edit' presentation_pk=presentation.pk pk=slide.pk %}" class="btn btn-sm btn-outline-secondary">Edit</a>
+                <form method="post" action="{% url 'presentations:slide-delete' presentation_pk=presentation.pk pk=slide.pk %}" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this slide?')">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="text-center py-5">
+    <p class="text-muted">No slides yet. Add your first slide or generate with AI.</p>
+</div>
+{% endif %}
+{% endblock %}
