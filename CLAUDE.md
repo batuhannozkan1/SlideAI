@@ -46,16 +46,16 @@ forms/        → models/ only (for ModelForm)
 
 ### Project Layout
 ```
-config/              — Settings (base/dev/prod/test), urls, wsgi, asgi
-apps/core/           — BaseRepository, exceptions, dtos, mixins, middleware, constants, views
+config/              — Settings (base/development/production/test), urls, wsgi, asgi
+apps/core/           — BaseRepository, exceptions, dtos, mixins, middleware, constants, views (flat structure)
 apps/accounts/       — Auth (EmailAuthBackend), User model, profiles
-apps/presentations/  — Presentations, slides, templates, themes, export
-apps/ai/             — AI client registry, Together client, prompt system, generation pipeline
-templates/           — 27 Django HTML templates (Bootstrap 5)
+apps/presentations/  — Presentations, slides, templates, themes, export (full layered structure)
+apps/ai/             — AI client registry, Together client, prompt system, generation pipeline (no views/repos/forms)
+templates/           — Django HTML templates (Bootstrap 5)
 static/              — CSS (main, slides), JS (main, slideshow, reorder)
 ```
 
-### Each App Internal Structure
+### Each App Internal Structure (accounts, presentations follow fully; ai, core are exceptions)
 ```
 app/
 ├── models/       — One file per model, __init__.py re-exports
@@ -63,7 +63,7 @@ app/
 ├── services/     — Pure functions, frozen DTOs in/out (+ exporters/ subpackage)
 ├── views/        — Thin HTTP handlers
 ├── forms/        — Validation only
-├── dtos.py       — App-specific frozen dataclasses
+├── dtos.py       — App-specific frozen dataclasses (where needed)
 ├── urls.py       — Namespaced URL patterns
 └── tests/        — test_models, test_repositories, test_services, test_views
 ```
@@ -75,9 +75,10 @@ app/
 presentation_generate view
   → AIGenerateForm.is_valid()
   → generation_service.generate_presentation_slides(GenerationRequest)
-      → prompt_service.build_system_prompt() / build_user_prompt()
       → get_ai_client() → TogetherClient (from registry)
-      → client.generate() → Together AI API (OpenAI-compat)
+      → client.generate(request)
+          → prompt_service.build_system_prompt() / build_user_prompt()
+          → OpenAI API call → _parse_response()
       → _validate_generation()
   → presentation_service.create_presentation()
   → slide_service.create_slide() × N
