@@ -1,0 +1,28 @@
+<div class="slide-card slide-card--{{ slide.layout }}"
+     draggable="true"
+     data-slide-id="{{ slide.pk }}"
+     style="
+        --slide-primary: {{ theme.primary_color|default:'#1a365d' }};
+        --slide-secondary: {{ theme.secondary_color|default:'#ffffff' }};
+        --slide-accent: {{ theme.accent_color|default:'#3182ce' }};
+        --slide-font-heading: '{{ theme.font_heading|default:'Inter' }}', sans-serif;
+        --slide-font-body: '{{ theme.font_body|default:'Inter' }}', sans-serif;
+     ">
+    <div class="slide-card__actions">
+        <a href="{% url 'presentations:slide-edit' presentation_pk=presentation.pk pk=slide.pk %}"
+           class="btn" title="Düzenle">&#9998;</a>
+        <form method="post" action="{% url 'presentations:slide-regenerate' presentation_pk=presentation.pk pk=slide.pk %}"
+              style="display:inline" onsubmit="return confirm('Bu slaytı yeniden oluşturmak istediğinize emin misiniz?')">
+            {% csrf_token %}
+            <button type="submit" class="btn" title="Yeniden Oluştur">&#x1F504;</button>
+        </form>
+        <form method="post" action="{% url 'presentations:slide-delete' presentation_pk=presentation.pk pk=slide.pk %}"
+              style="display:inline" onsubmit="return confirm('Bu slaytı silmek istediğinize emin misiniz?')">
+            {% csrf_token %}
+            <button type="submit" class="btn" title="Sil">&#x1F5D1;</button>
+        </form>
+    </div>
+    <div class="slide-card__heading">{{ slide.heading }}</div>
+    <div class="slide-card__body">{{ slide.body|truncatewords:30|linebreaksbr }}</div>
+    <div class="slide-card__number">{{ forloop.counter }}</div>
+</div>

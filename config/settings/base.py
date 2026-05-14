@@ -99,6 +99,14 @@ LOGIN_URL = "/accounts/login/"
 LOGIN_REDIRECT_URL = "/presentations/"
 LOGOUT_REDIRECT_URL = "/accounts/login/"
 
+AUTHENTICATION_BACKENDS = [
+    "apps.accounts.backends.EmailAuthBackend",
+    "django.contrib.auth.backends.ModelBackend",
+]
+
 AI_PROVIDER = os.environ.get("AI_PROVIDER", "")
 AI_API_KEY = os.environ.get("AI_API_KEY", "")
 AI_MODEL = os.environ.get("AI_MODEL", "")
+AI_BASE_URL = os.environ.get("AI_BASE_URL", "")
+AI_MAX_SLIDES = int(os.environ.get("AI_MAX_SLIDES", "20"))
+AI_DEFAULT_SLIDES = int(os.environ.get("AI_DEFAULT_SLIDES", "8"))
