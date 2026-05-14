@@ -1,13 +1,14 @@
 # SlideAI
 
-AI-powered presentation generation web application. Create professional slide decks with artificial intelligence assistance.
+AI-powered presentation generation. Enter a topic, get professional slides — with themes, visual preview, fullscreen presentation mode, and PowerPoint export.
 
 ## Tech Stack
 
 - **Backend:** Python 3.12 / Django 5.1
-- **Database:** MySQL (SQLite fallback for development)
+- **Database:** MySQL
 - **Frontend:** Django Templates + Bootstrap 5
-- **AI:** Provider-agnostic integration layer (plug any LLM)
+- **AI:** Together AI (OpenAI-compatible API, Llama 3.3 70B)
+- **Export:** python-pptx (PowerPoint)
 
 ## Quick Start
 
@@ -26,10 +27,13 @@ pip install -r requirements.txt
 
 # Environment variables
 cp .env.sample .env
-# Edit .env with your SECRET_KEY and DB credentials
+# Edit .env with your credentials (see Configuration below)
 
 # Database
 python manage.py migrate
+
+# Seed themes & templates
+python manage.py seed_data
 
 # Create admin user
 python manage.py createsuperuser
@@ -40,9 +44,22 @@ python manage.py runserver
 
 Open [http://localhost:8000](http://localhost:8000)
 
+## Features
+
+- **AI Slide Generation** — Enter a topic, pick a style and template, AI generates complete slide content
+- **Template-Driven** — 4 built-in templates (Pitch Deck, Educational, Business Report, Project Proposal) guide AI output structure
+- **6 Themes** — Corporate Blue, Dark Mode, Minimalist, Nature Green, Warm Sunset, Tech Neon
+- **Visual Preview** — 16:9 slide cards with theme colors, drag-drop reorder
+- **Presentation Mode** — Fullscreen slideshow with keyboard/touch navigation
+- **Theme Switching** — One-click theme change on any presentation
+- **PowerPoint Export** — Download .pptx with theme colors, fonts, and speaker notes
+- **Slide Regeneration** — Regenerate individual slides with AI
+- **Public Sharing** — Share link for public presentations
+- **Duplicate** — Copy any presentation with all slides
+
 ## Architecture
 
-SlideAI follows the **Service-Repository** pattern — a layered architecture where each layer has a single responsibility:
+SlideAI follows the **Service-Repository** pattern with **Registry Patterns** for extensibility:
 
 ```
 HTTP Request
@@ -52,33 +69,57 @@ HTTP Request
     → Model       (data definition only)
 ```
 
+### Extension Points
+
+| Want to add... | How |
+|----------------|-----|
+| New AI provider | 1 file in `apps/ai/clients/`, call `register_client()` |
+| New export format | 1 file in `apps/presentations/services/exporters/`, call `register_exporter()` |
+| New slide template | Add via admin panel or `seed_data` command |
+| New theme | Add via admin panel or `seed_data` command |
+| New slide layout | Add to `SlideLayout` enum + CSS class + pptx mapping |
+
 ### Project Structure
 
 ```
-config/                  Django project settings (base/dev/prod split)
+config/                       Django settings (base/dev/prod/test)
 apps/
-├── core/               Shared foundation (base classes, exceptions, DTOs, mixins)
-├── accounts/           Authentication, users, profiles
-├── presentations/      Presentations, slides, templates, themes
-└── ai/                 AI integration (provider-agnostic)
-templates/              HTML templates (Bootstrap 5)
-static/                 CSS, JS, images
-```
-
-### App Internal Layout
-
-Each app follows the same consistent structure:
-
-```
-app/
-├── models/             One file per model
-├── repositories/       Data access layer (ORM queries)
-├── services/           Business logic (pure functions)
-├── views/              HTTP handlers (thin)
-├── forms/              Form validation
-├── dtos.py             Frozen dataclasses for data transfer
-├── urls.py             URL routing (namespaced)
-└── tests/              Tests organized by layer
+├── core/                    Shared foundation
+│   ├── base_repository.py   Generic BaseRepository[T]
+│   ├── exceptions.py        Custom exception hierarchy
+│   ├── dtos.py              ServiceResult, PaginatedResult
+│   ├── mixins.py            UUID PK, timestamps, soft delete
+│   ├── middleware/           DomainExceptionMiddleware
+│   ├── constants.py         SlideLayout enum
+│   └── views.py             Landing page
+├── accounts/                Authentication
+│   ├── models/              User, UserProfile
+│   ├── backends.py          EmailAuthBackend
+│   ├── services/            auth_service, profile_service
+│   └── views/               register, login, logout, profile
+├── presentations/           Main domain
+│   ├── models/              Presentation, Slide, SlideTemplate, Theme
+│   ├── repositories/        4 repositories + singletons
+│   ├── services/
+│   │   ├── presentation_service.py  CRUD + duplicate
+│   │   ├── slide_service.py         CRUD + reorder
+│   │   ├── theme_service.py         list, apply
+│   │   ├── export_service.py        registry-based export
+│   │   └── exporters/               BaseExporter + PptxExporter
+│   ├── views/               presentations, slides, export, templates
+│   ├── forms/               PresentationForms, SlideForm, AIGenerateForm
+│   ├── management/commands/ seed_data
+│   └── urls.py              19 URL patterns
+└── ai/                      AI integration
+    ├── clients/             Registry + TogetherClient + BaseAIClient ABC
+    ├── services/            generation_service, prompt_service
+    ├── prompts/             System/user prompt templates
+    ├── dtos.py              GenerationRequest, SlideContent, GenerationResult
+    └── tests/               MockAIClient
+templates/                   27 templates (Bootstrap 5)
+static/
+├── css/                     main.css, slides.css
+└── js/                      main.js, slideshow.js, slide-reorder.js
 ```
 
 ## Configuration
@@ -87,18 +128,19 @@ app/
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `DJANGO_ENV` | Environment: `development` / `production` | `development` |
+| `DJANGO_ENV` | `development` / `production` / `test` | `development` |
 | `SECRET_KEY` | Django secret key | — |
 | `DB_NAME` | MySQL database name | `slideai` |
 | `DB_USER` | MySQL user | `root` |
 | `DB_PASSWORD` | MySQL password | — |
 | `DB_HOST` | MySQL host | `127.0.0.1` |
 | `DB_PORT` | MySQL port | `3306` |
-| `AI_PROVIDER` | AI provider identifier | — |
-| `AI_API_KEY` | AI service API key | — |
-| `AI_MODEL` | AI model name | — |
-
-> **Note:** In development, if `DB_NAME` is not set, the app automatically falls back to SQLite.
+| `AI_PROVIDER` | AI provider: `together` or `mock` | — |
+| `AI_API_KEY` | Together AI API key | — |
+| `AI_MODEL` | Model ID (e.g. `meta-llama/Llama-3.3-70B-Instruct-Turbo`) | — |
+| `AI_BASE_URL` | API base URL (e.g. `https://api.together.xyz/v1`) | — |
+| `AI_MAX_SLIDES` | Maximum slides per generation | `20` |
+| `AI_DEFAULT_SLIDES` | Default slide count | `8` |
 
 ### Settings
 
@@ -107,6 +149,7 @@ Settings are split by environment:
 - `config/settings/base.py` — Shared configuration
 - `config/settings/development.py` — Debug mode, console email, SQLite fallback
 - `config/settings/production.py` — Security headers, HTTPS enforcement
+- `config/settings/test.py` — Fast password hasher, mock AI provider
 
 ## Development
 
@@ -115,11 +158,11 @@ Settings are split by environment:
 pip install -r requirements-dev.txt
 
 # Run tests
-python manage.py test
+pytest
 
 # Run specific app tests
-python manage.py test apps.accounts
-python manage.py test apps.presentations
+pytest apps/accounts/
+pytest apps/presentations/
 
 # Code formatting
 black .
@@ -131,6 +174,42 @@ mypy .
 # Linting
 flake8
 ```
+
+### Seed Data
+
+The `seed_data` management command creates:
+- **6 themes** with colors and fonts
+- **4 slide templates** with structured JSON layouts (Pitch Deck, Educational Lesson, Business Report, Project Proposal)
+
+```bash
+python manage.py seed_data
+```
+
+Idempotent — safe to run multiple times.
+
+## API Routes
+
+### Presentations (8 routes)
+- `GET /presentations/` — List user's presentations
+- `GET /presentations/create/` — Manual creation form
+- `GET /presentations/generate/` — AI generation form
+- `GET /presentations/<uuid>/` — Detail with visual slide grid
+- `GET /presentations/<uuid>/present/` — Fullscreen presentation mode
+- `POST /presentations/<uuid>/theme/` — Change theme
+- `POST /presentations/<uuid>/duplicate/` — Duplicate presentation
+- `GET /presentations/<uuid>/edit/` — Edit form
+
+### Slides (6 routes)
+- `GET /presentations/<uuid>/slides/` — List slides
+- `POST /presentations/<uuid>/slides/create/` — Add slide
+- `POST /presentations/<uuid>/slides/<uuid>/edit/` — Edit slide
+- `POST /presentations/<uuid>/slides/<uuid>/delete/` — Delete slide
+- `POST /presentations/<uuid>/slides/<uuid>/regenerate/` — AI regenerate slide
+- `POST /presentations/<uuid>/slides/reorder/` — Reorder (JSON)
+
+### Export (2 routes)
+- `GET /presentations/<uuid>/export/pptx/` — Download PowerPoint
+- `GET /presentations/<uuid>/export/pdf/` — PDF (coming soon)
 
 ## License
 
