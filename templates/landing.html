@@ -1,0 +1,192 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SlideAI — AI ile Sunum Oluştur</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --gradient-start: #667eea;
+            --gradient-end: #764ba2;
+        }
+        body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
+        .hero {
+            background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
+            color: #fff;
+            padding: 6rem 0 5rem;
+            min-height: 70vh;
+            display: flex;
+            align-items: center;
+        }
+        .hero h1 { font-size: 3rem; font-weight: 800; line-height: 1.2; }
+        .hero .lead { font-size: 1.25rem; opacity: 0.9; }
+        .feature-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+            margin-bottom: 1rem;
+        }
+        .feature-card {
+            padding: 2rem;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            transition: transform 0.2s, box-shadow 0.2s;
+            height: 100%;
+        }
+        .feature-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
+        .step-number {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+        .cta-section {
+            background: #f8fafc;
+            padding: 4rem 0;
+        }
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2rem; }
+            .hero { padding: 4rem 0 3rem; min-height: auto; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark" style="background: transparent; position: absolute; width: 100%; z-index: 10;">
+        <div class="container">
+            <a class="navbar-brand fw-bold fs-4" href="{% url 'landing' %}">SlideAI</a>
+            <div class="ms-auto d-flex gap-2">
+                <a href="{% url 'accounts:login' %}" class="btn btn-outline-light btn-sm">Giriş Yap</a>
+                <a href="{% url 'accounts:register' %}" class="btn btn-light btn-sm text-dark fw-semibold">Kayıt Ol</a>
+            </div>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <h1>Konunuzu yazın,<br>sunumunuz hazır.</h1>
+                    <p class="lead mt-3 mb-4">
+                        SlideAI, yapay zeka ile profesyonel sunumlar oluşturur.
+                        Konu girin, tema seçin, saniyeler içinde slaytlarınızı alın.
+                    </p>
+                    <div class="d-flex gap-3">
+                        <a href="{% url 'accounts:register' %}" class="btn btn-light btn-lg fw-semibold px-4">
+                            Hemen Başla
+                        </a>
+                        <a href="{% url 'accounts:login' %}" class="btn btn-outline-light btn-lg px-4">
+                            Giriş Yap
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-6 d-none d-lg-block text-center">
+                    <div style="background: rgba(255,255,255,0.15); border-radius: 16px; padding: 2rem; backdrop-filter: blur(10px);">
+                        <div style="aspect-ratio: 16/9; background: rgba(255,255,255,0.1); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: rgba(255,255,255,0.8);">
+                            <div>
+                                <div style="font-size: 3rem;">&#x2728;</div>
+                                <div class="mt-2">AI-Powered Slides</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-5">
+        <div class="container">
+            <h2 class="text-center fw-bold mb-2">Nasıl Çalışır?</h2>
+            <p class="text-center text-muted mb-5">Üç adımda profesyonel sunumunuzu oluşturun</p>
+            <div class="row g-4 justify-content-center">
+                <div class="col-md-4">
+                    <div class="d-flex align-items-start gap-3">
+                        <div class="step-number">1</div>
+                        <div>
+                            <h5 class="fw-bold">Konunuzu Yazın</h5>
+                            <p class="text-muted mb-0">Sunumunuzun konusunu, hedef kitlesini ve stilini belirleyin.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="d-flex align-items-start gap-3">
+                        <div class="step-number">2</div>
+                        <div>
+                            <h5 class="fw-bold">AI Oluştursun</h5>
+                            <p class="text-muted mb-0">Yapay zeka slaytlarınızı saniyeler içinde hazırlar.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="d-flex align-items-start gap-3">
+                        <div class="step-number">3</div>
+                        <div>
+                            <h5 class="fw-bold">Düzenle ve Paylaş</h5>
+                            <p class="text-muted mb-0">Slaytları düzenleyin, temayı değiştirin, PowerPoint olarak indirin.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-5 bg-light">
+        <div class="container">
+            <h2 class="text-center fw-bold mb-5">Özellikler</h2>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="feature-card bg-white">
+                        <div class="feature-icon" style="background: #eef2ff; color: #667eea;">&#x1F916;</div>
+                        <h5 class="fw-bold">AI ile Slayt Üretimi</h5>
+                        <p class="text-muted mb-0">Konunuzu yazın, yapay zeka profesyonel içerik ve düzen ile slaytlarınızı oluştursun.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-card bg-white">
+                        <div class="feature-icon" style="background: #fef3c7; color: #f59e0b;">&#x1F3A8;</div>
+                        <h5 class="fw-bold">Tema Sistemi</h5>
+                        <p class="text-muted mb-0">Hazır temalardan seçin veya sunumunuzu tek tıkla farklı bir görünüme kavuşturun.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-card bg-white">
+                        <div class="feature-icon" style="background: #d1fae5; color: #10b981;">&#x1F4E5;</div>
+                        <h5 class="fw-bold">PowerPoint Export</h5>
+                        <p class="text-muted mb-0">Sunumunuzu .pptx formatında indirin, PowerPoint veya Google Slides ile açın.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta-section text-center">
+        <div class="container">
+            <h2 class="fw-bold mb-3">Sunumlarınızı AI ile oluşturmaya başlayın</h2>
+            <p class="text-muted mb-4">Ücretsiz hesap oluşturun, ilk sunumunuzu saniyeler içinde hazırlayın.</p>
+            <a href="{% url 'accounts:register' %}" class="btn btn-lg px-5 fw-semibold text-white" style="background: linear-gradient(135deg, #667eea, #764ba2);">
+                Hemen Başla
+            </a>
+        </div>
+    </section>
+
+    <footer class="py-3 text-center text-muted" style="border-top: 1px solid #e2e8f0;">
+        <div class="container">
+            <p class="mb-0">&copy; 2026 SlideAI. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -20,7 +20,7 @@ def register_view(request: HttpRequest) -> HttpResponse:
                 email=form.cleaned_data["email"],
                 password=form.cleaned_data["password1"],
             )
-            login(request, result.data)
+            login(request, result.data, backend="apps.accounts.backends.EmailAuthBackend")
             messages.success(request, "Account created successfully.")
             return redirect("presentations:list")
     else:
@@ -39,7 +39,6 @@ def login_view(request: HttpRequest) -> HttpResponse:
             user = authenticate(
                 request,
                 username=form.cleaned_data["email"],
-                email=form.cleaned_data["email"],
                 password=form.cleaned_data["password"],
             )
             if user is not None:
