@@ -51,8 +51,10 @@ apps/core/           — BaseRepository, exceptions, dtos, mixins, middleware, c
 apps/accounts/       — Auth (EmailAuthBackend), User model, profiles
 apps/presentations/  — Presentations, slides, templates, themes, export (full layered structure)
 apps/ai/             — AI client registry, Together client, prompt system, generation pipeline (no views/repos/forms)
-templates/           — Django HTML templates (Bootstrap 5)
-static/              — CSS (main, slides), JS (main, slideshow, reorder)
+templates/           — Django HTML templates (Tailwind CSS): base.html → layouts/ → pages
+  layouts/           — app.html (sidebar+topbar), auth.html (centered), error.html (minimal)
+  components/        — _sidebar, _topbar, _messages, _pagination (max 5, 2+ usage rule)
+static/              — CSS (app, slides), JS (app, slideshow, reorder)
 ```
 
 ### Each App Internal Structure (accounts, presentations follow fully; ai, core are exceptions)
@@ -105,10 +107,15 @@ Themes set `--slide-primary`, `--slide-secondary`, `--slide-accent`, `--slide-fo
 - UUID primary keys via `UUIDPrimaryKeyMixin`. Soft delete via `SoftDeleteMixin`.
 
 ### Frontend
-- Bootstrap 5 CDN. Base template with blocks (title, content, extra_css, extra_js).
-- Components as partials: `_navbar.html`, `_footer.html`, `_messages.html`, `_pagination.html`, `_slide_card.html`.
-- Slide preview: CSS custom properties + 16:9 aspect ratio cards.
-- Fullscreen presentation: standalone HTML, keyboard/touch nav, progress bar.
+- Tailwind CSS CDN with inline config (design tokens: colors, typography, spacing). Inter font + Material Symbols.
+- 3-tier template hierarchy: `base.html` → `layouts/{app,auth,error}.html` → page templates.
+- `layouts/app.html`: 240px dark sidebar + 56px topbar + scrollable main. All authenticated pages extend this.
+- `layouts/auth.html`: Centered card for login/register. `layouts/error.html`: Minimal error page.
+- Components: `_sidebar.html`, `_topbar.html`, `_messages.html`, `_pagination.html`. Max 5 components — only extract if 2+ usage.
+- Sidebar nav: `apps/core/templatetags/nav_tags.py` (`active_nav` tag). Recent files: `apps/presentations/context_processors.py`.
+- Slide preview: CSS custom properties in `slides.css` + 16:9 aspect ratio cards (framework-agnostic).
+- Fullscreen presentation: standalone HTML (`present.html`), keyboard/touch nav, progress bar.
+- Static: `css/app.css` (animations, scrollbar), `js/app.js` (sidebar toggle, toast, dropdown, CSRF).
 
 ### Database
 - MySQL primary. Never edit migration files. Never bypass migrations.
