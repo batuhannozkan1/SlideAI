@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Templates — SlideAI{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">Slide Templates</h2>
+
+{% if templates %}
+<div class="row">
+    {% for template in templates %}
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">{{ template.name }}</h5>
+                <p class="card-text text-muted">{{ template.description|truncatewords:15 }}</p>
+            </div>
+            <div class="card-footer">
+                <a href="{% url 'presentations:template-preview' pk=template.pk %}" class="btn btn-sm btn-outline-primary">Preview</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<p class="text-muted">No templates available yet.</p>
+{% endif %}
+{% endblock %}

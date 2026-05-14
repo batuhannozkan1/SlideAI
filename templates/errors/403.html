@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block title %}Forbidden — SlideAI{% endblock %}
+
+{% block content %}
+<div class="text-center py-5">
+    <h1 class="display-1 text-muted">403</h1>
+    <h2>Access Denied</h2>
+    <p class="text-muted">{{ message|default:"You do not have permission to access this page." }}</p>
+    <a href="{% url 'presentations:list' %}" class="btn btn-primary">Go Home</a>
+</div>
+{% endblock %}

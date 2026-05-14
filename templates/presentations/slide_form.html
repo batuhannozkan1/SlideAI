@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Slide Editor — SlideAI{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <h2 class="mb-4">Slide Editor</h2>
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="id_heading" class="form-label">Heading</label>
+                <input type="text" name="heading" id="id_heading" class="form-control" value="{{ form.heading.value|default:"" }}">
+            </div>
+            <div class="mb-3">
+                <label for="id_body" class="form-label">Body</label>
+                <textarea name="body" id="id_body" class="form-control" rows="6">{{ form.body.value|default:"" }}</textarea>
+            </div>
+            <div class="mb-3">
+                <label for="id_notes" class="form-label">Speaker Notes</label>
+                <textarea name="notes" id="id_notes" class="form-control" rows="3">{{ form.notes.value|default:"" }}</textarea>
+            </div>
+            <div class="mb-3">
+                <label for="id_layout" class="form-label">Layout</label>
+                {{ form.layout }}
+            </div>
+            <button type="submit" class="btn btn-primary">Save Slide</button>
+            <a href="{% url 'presentations:detail' pk=presentation_pk %}" class="btn btn-outline-secondary">Cancel</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

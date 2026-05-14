@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}Slides — SlideAI{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">Slides</h2>
+
+{% if slides %}
+<div class="list-group">
+    {% for slide in slides %}
+    <div class="list-group-item">
+        <h5>{{ forloop.counter }}. {{ slide.heading|default:"Untitled" }}</h5>
+        <p class="text-muted mb-0">{{ slide.body|truncatewords:20 }}</p>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<p class="text-muted">No slides in this presentation.</p>
+{% endif %}
+
+<a href="{% url 'presentations:detail' pk=presentation_pk %}" class="btn btn-outline-secondary mt-3">Back</a>
+{% endblock %}
