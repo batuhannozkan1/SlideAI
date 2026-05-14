@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 
+from apps.ai.services.generation_service import regenerate_single_slide
 from apps.presentations.dtos import CreateSlideDTO, UpdateSlideDTO
 from apps.presentations.forms.slide_forms import SlideForm
 from apps.presentations.services import presentation_service, slide_service
@@ -91,3 +92,47 @@ def slide_reorder(request: HttpRequest, presentation_pk) -> HttpResponse:
         )
         return JsonResponse({"status": "ok"})
     return JsonResponse({"error": "POST required"}, status=405)
+
+
+@login_required
+def slide_regenerate(request: HttpRequest, presentation_pk, pk) -> HttpResponse:
+    if request.method == "POST":
+        pres_result = presentation_service.get_presentation(
+            presentation_pk, requesting_user_id=request.user.id
+        )
+        presentation = pres_result.data
+        slides = list(presentation.slides.all().order_by("position"))
+
+        current_slide = None
+        context_parts = []
+        for s in slides:
+            if str(s.pk) == str(pk):
+                current_slide = s
+            else:
+                context_parts.append(f"- {s.heading}")
+
+        if current_slide is None:
+            messages.error(request, "Slayt bulunamadı.")
+            return redirect("presentations:detail", pk=presentation_pk)
+
+        result = regenerate_single_slide(
+            topic=presentation.title,
+            slide_context="\n".join(context_parts),
+        )
+
+        if result.success:
+            slide_service.update_slide(
+                pk,
+                UpdateSlideDTO(
+                    heading=result.data.heading,
+                    body=result.data.body,
+                    notes=result.data.notes,
+                    layout=result.data.layout,
+                ),
+                requesting_user_id=request.user.id,
+            )
+            messages.success(request, "Slayt yeniden oluşturuldu.")
+        else:
+            messages.error(request, "Slayt yeniden oluşturulamadı.")
+
+    return redirect("presentations:detail", pk=presentation_pk)
