@@ -4,11 +4,17 @@
 
 {% block body %}
 <div class="w-full max-w-md px-4">
-    <div class="text-center mb-8">
-        <a href="{% url 'landing' %}" class="inline-flex items-center gap-2">
-            <div class="w-10 h-10 rounded-lg bg-[#eff6ff] border border-[#bfdbfe] flex items-center justify-center text-[#2563eb] font-bold text-xl">S</div>
-            <span class="text-2xl font-semibold text-on-surface">SlideAI</span>
+    <div class="mb-8">
+        <a href="{% url 'landing' %}" class="inline-flex items-center gap-1.5 text-sm text-[#64748b] hover:text-[#0f172a] transition-colors mb-6">
+            <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+            Ana Sayfa
         </a>
+        <div class="text-center">
+            <a href="{% url 'landing' %}" class="inline-flex items-center gap-2">
+                <div class="w-10 h-10 rounded-lg bg-[#eff6ff] border border-[#bfdbfe] flex items-center justify-center text-[#2563eb] font-bold text-xl">S</div>
+                <span class="text-2xl font-semibold text-on-surface">SlideAI</span>
+            </a>
+        </div>
     </div>
 
     <div class="bg-white rounded-xl border border-outline-variant p-8 shadow-sm">
