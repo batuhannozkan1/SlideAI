@@ -1,7 +1,7 @@
 {% load nav_tags %}
 <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-sidebar h-screen transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col bg-[#f8fafc] border-r border-[#e2e8f0] py-4">
     <div class="px-6 py-2 flex items-center justify-between">
-        <a href="{% url 'presentations:dashboard' %}">
+        <a href="{% url 'dashboard' %}">
             <h1 class="font-bold text-2xl text-[#0f172a] leading-tight tracking-tight">SlideAI</h1>
         </a>
         <button id="sidebarToggle" class="text-[#64748b] hover:text-[#0f172a] p-1 flex items-center justify-center rounded-md hover:bg-[#e2e8f0] transition-colors">
@@ -21,7 +21,7 @@
         {% active_url_name "list" as nav_list %}
         {% active_nav "/presentations/templates" as nav_templates %}
         {% active_nav "/accounts/profile" as nav_profile %}
-        <a class="flex items-center gap-3 w-full px-4 py-3 rounded-lg transition-all duration-200 {% if nav_dashboard == 'active' %}font-semibold bg-[#eff6ff] text-[#1e40af] shadow-sm border border-[#bfdbfe]{% else %}font-medium text-[#64748b] hover:bg-white hover:text-[#0f172a] hover:translate-x-1{% endif %}" href="{% url 'presentations:dashboard' %}">
+        <a class="flex items-center gap-3 w-full px-4 py-3 rounded-lg transition-all duration-200 {% if nav_dashboard == 'active' %}font-semibold bg-[#eff6ff] text-[#1e40af] shadow-sm border border-[#bfdbfe]{% else %}font-medium text-[#64748b] hover:bg-white hover:text-[#0f172a] hover:translate-x-1{% endif %}" href="{% url 'dashboard' %}">
             <span class="material-symbols-outlined text-[20px] {% if nav_dashboard == 'active' %}fill text-[#3b82f6]{% endif %}">space_dashboard</span>
             <span class="text-sm">Kontrol Paneli</span>
         </a>
