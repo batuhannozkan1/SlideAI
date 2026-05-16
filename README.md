@@ -6,7 +6,7 @@ AI-powered presentation generation. Enter a topic, get professional slides — w
 
 - **Backend:** Python 3.12 / Django 5.1
 - **Database:** MySQL
-- **Frontend:** Django Templates + Bootstrap 5
+- **Frontend:** Django Templates + Tailwind CSS
 - **AI:** Together AI (OpenAI-compatible API, Llama 3.3 70B)
 - **Export:** python-pptx (PowerPoint)
 
@@ -106,20 +106,20 @@ apps/
 │   │   ├── theme_service.py         list, apply
 │   │   ├── export_service.py        registry-based export
 │   │   └── exporters/               BaseExporter + PptxExporter
-│   ├── views/               presentations, slides, export, templates
+│   ├── views/               presentations, slides, export, templates (template routes are top-level)
 │   ├── forms/               PresentationForms, SlideForm, AIGenerateForm
 │   ├── management/commands/ seed_data
-│   └── urls.py              19 URL patterns
+│   └── urls.py              17 URL patterns
 └── ai/                      AI integration
     ├── clients/             Registry + TogetherClient + BaseAIClient ABC
     ├── services/            generation_service, prompt_service
     ├── prompts/             System/user prompt templates
     ├── dtos.py              GenerationRequest, SlideContent, GenerationResult
     └── tests/               MockAIClient
-templates/                   27 templates (Bootstrap 5)
+templates/                   32 templates (Tailwind CSS)
 static/
-├── css/                     main.css, slides.css
-└── js/                      main.js, slideshow.js, slide-reorder.js
+├── css/                     app.css, slides.css
+└── js/                      app.js, slideshow.js, slide-reorder.js
 ```
 
 ## Configuration
@@ -189,7 +189,10 @@ Idempotent — safe to run multiple times.
 
 ## API Routes
 
-### Presentations (8 routes)
+### Dashboard
+- `GET /dashboard/` — User dashboard with stats and recent presentations
+
+### Presentations (9 routes)
 - `GET /presentations/` — List user's presentations
 - `GET /presentations/create/` — Manual creation form
 - `GET /presentations/generate/` — AI generation form
@@ -198,6 +201,7 @@ Idempotent — safe to run multiple times.
 - `POST /presentations/<uuid>/theme/` — Change theme
 - `POST /presentations/<uuid>/duplicate/` — Duplicate presentation
 - `GET /presentations/<uuid>/edit/` — Edit form
+- `POST /presentations/<uuid>/delete/` — Delete presentation
 
 ### Slides (6 routes)
 - `GET /presentations/<uuid>/slides/` — List slides
@@ -206,6 +210,10 @@ Idempotent — safe to run multiple times.
 - `POST /presentations/<uuid>/slides/<uuid>/delete/` — Delete slide
 - `POST /presentations/<uuid>/slides/<uuid>/regenerate/` — AI regenerate slide
 - `POST /presentations/<uuid>/slides/reorder/` — Reorder (JSON)
+
+### Templates (2 routes)
+- `GET /templates/` — Template gallery
+- `GET /templates/<uuid>/preview/` — Template preview
 
 ### Export (2 routes)
 - `GET /presentations/<uuid>/export/pptx/` — Download PowerPoint

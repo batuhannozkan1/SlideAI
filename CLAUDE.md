@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-SlideAI — AI-powered presentation generation. Django + MySQL, server-side rendered with Bootstrap 5. Together AI (OpenAI-compat) for LLM, python-pptx for export.
+SlideAI — AI-powered presentation generation. Django + MySQL, server-side rendered with Tailwind CSS. Together AI (OpenAI-compat) for LLM, python-pptx for export.
 
 ## Commands
 
@@ -109,9 +109,9 @@ Themes set `--slide-primary`, `--slide-secondary`, `--slide-accent`, `--slide-fo
 ### Frontend
 - Tailwind CSS CDN with inline config (design tokens: colors, typography, spacing). Inter font + Material Symbols.
 - 3-tier template hierarchy: `base.html` → `layouts/{app,auth,error}.html` → page templates.
-- `layouts/app.html`: 240px dark sidebar + 56px topbar + scrollable main. All authenticated pages extend this.
+- `layouts/app.html`: 240px light sidebar + 56px topbar + scrollable main. All authenticated pages extend this.
 - `layouts/auth.html`: Centered card for login/register. `layouts/error.html`: Minimal error page.
-- Components: `_sidebar.html`, `_topbar.html`, `_messages.html`, `_pagination.html`. Max 5 components — only extract if 2+ usage.
+- Components: `_sidebar.html`, `_topbar.html`, `_messages.html`, `_pagination.html`, `_mobile_bottom_nav.html`. Max 5 components — only extract if 2+ usage.
 - Sidebar nav: `apps/core/templatetags/nav_tags.py` (`active_nav` tag). Recent files: `apps/presentations/context_processors.py`.
 - Slide preview: CSS custom properties in `slides.css` + 16:9 aspect ratio cards (framework-agnostic).
 - Fullscreen presentation: standalone HTML (`present.html`), keyboard/touch nav, progress bar.
