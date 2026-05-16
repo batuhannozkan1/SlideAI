@@ -19,7 +19,7 @@
     <nav class="flex-1 overflow-y-auto sidebar-scroll px-4 space-y-1">
         {% active_url_name "dashboard" as nav_dashboard %}
         {% active_url_name "list" as nav_list %}
-        {% active_nav "/presentations/templates" as nav_templates %}
+        {% active_nav "/templates" as nav_templates %}
         {% active_nav "/accounts/profile" as nav_profile %}
         <a class="flex items-center gap-3 w-full px-4 py-3 rounded-lg transition-all duration-200 {% if nav_dashboard == 'active' %}font-semibold bg-[#eff6ff] text-[#1e40af] shadow-sm border border-[#bfdbfe]{% else %}font-medium text-[#64748b] hover:bg-white hover:text-[#0f172a] hover:translate-x-1{% endif %}" href="{% url 'dashboard' %}">
             <span class="material-symbols-outlined text-[20px] {% if nav_dashboard == 'active' %}fill text-[#3b82f6]{% endif %}">space_dashboard</span>
@@ -29,7 +29,7 @@
             <span class="material-symbols-outlined text-[20px] {% if nav_list == 'active' %}fill text-[#3b82f6]{% endif %}">slideshow</span>
             <span class="text-sm">Sunumlar</span>
         </a>
-        <a class="flex items-center gap-3 w-full px-4 py-3 rounded-lg transition-all duration-200 {% if nav_templates == 'active' %}font-semibold bg-[#eff6ff] text-[#1e40af] shadow-sm border border-[#bfdbfe]{% else %}font-medium text-[#64748b] hover:bg-white hover:text-[#0f172a] hover:translate-x-1{% endif %}" href="{% url 'presentations:template-gallery' %}">
+        <a class="flex items-center gap-3 w-full px-4 py-3 rounded-lg transition-all duration-200 {% if nav_templates == 'active' %}font-semibold bg-[#eff6ff] text-[#1e40af] shadow-sm border border-[#bfdbfe]{% else %}font-medium text-[#64748b] hover:bg-white hover:text-[#0f172a] hover:translate-x-1{% endif %}" href="{% url 'template-gallery' %}">
             <span class="material-symbols-outlined text-[20px] {% if nav_templates == 'active' %}fill text-[#3b82f6]{% endif %}">dashboard</span>
             <span class="text-sm">Şablonlar</span>
         </a>

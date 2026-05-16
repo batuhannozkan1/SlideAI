@@ -1,33 +1,61 @@
 {% extends "base.html" %}
 
-{% block body_class %}bg-[#f8fafc] min-h-screen flex items-center justify-center{% endblock %}
+{% block body_class %}bg-[#f8fafc] min-h-screen flex flex-col items-center justify-center relative overflow-hidden{% endblock %}
 
 {% block body %}
-<div class="w-full max-w-md px-4">
-    <div class="mb-8">
-        <a href="{% url 'landing' %}" class="inline-flex items-center gap-1.5 text-sm text-[#64748b] hover:text-[#0f172a] transition-colors mb-6">
-            <span class="material-symbols-outlined text-[18px]">arrow_back</span>
-            Ana Sayfa
-        </a>
-        <div class="text-center">
-            <a href="{% url 'landing' %}" class="inline-flex items-center gap-2">
-                <div class="w-10 h-10 rounded-lg bg-[#eff6ff] border border-[#bfdbfe] flex items-center justify-center text-[#2563eb] font-bold text-xl">S</div>
-                <span class="text-2xl font-semibold text-on-surface">SlideAI</span>
+<div class="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-[#bfdbfe] opacity-30 rounded-full blur-[100px] -z-10"></div>
+<div class="absolute bottom-[-10%] right-[-10%] w-[600px] h-[600px] bg-[#bfdbfe] opacity-20 rounded-full blur-[120px] -z-10"></div>
+
+<div class="absolute top-6 right-6 md:top-8 md:right-8 z-20">
+    <a href="{% url 'landing' %}" class="group bg-[#eff6ff] text-[#2563eb] border border-[#bfdbfe] hover:bg-[#dbeafe] px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 hover:shadow-md hover:-translate-y-0.5 active:scale-95 flex items-center gap-2">
+        <span class="material-symbols-outlined text-[18px] group-hover:-translate-x-1 transition-transform">arrow_back</span>
+        Ana Sayfaya Dön
+    </a>
+</div>
+
+<div class="w-full max-w-[420px] px-6 z-10">
+    <div class="bg-white rounded-3xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.1)] border border-[#e2e8f0] ring-[8px] ring-[#eff6ff]/60 p-8 md:p-10 animate-fade-in-up">
+        <div class="text-center mb-8">
+            <a href="{% url 'landing' %}" class="inline-block mb-4 hover:opacity-80 transition-opacity">
+                <span class="font-bold text-3xl tracking-tight text-[#0f172a]">SlideAI</span>
             </a>
+            <h1 class="text-2xl font-bold tracking-tight text-[#0f172a]">{% block auth_title %}{% endblock %}</h1>
+            <p class="text-[#64748b] text-sm mt-2">{% block auth_subtitle %}{% endblock %}</p>
         </div>
-    </div>
 
-    <div class="bg-white rounded-xl border border-outline-variant p-8 shadow-sm">
-        <h2 class="text-headline-sm font-semibold text-on-surface mb-1">{% block auth_title %}{% endblock %}</h2>
-        <p class="text-body-md text-on-surface-variant mb-6">{% block auth_subtitle %}{% endblock %}</p>
-
-        {% include "components/_messages.html" %}
+        {% if messages %}
+        <div class="mb-6 space-y-2">
+            {% for message in messages %}
+            <div class="px-4 py-3 rounded-xl border text-sm
+                {% if message.tags == 'success' %}bg-emerald-50 text-emerald-800 border-emerald-200
+                {% elif message.tags == 'error' or message.tags == 'danger' %}bg-red-50 text-red-800 border-red-200
+                {% elif message.tags == 'warning' %}bg-amber-50 text-amber-800 border-amber-200
+                {% else %}bg-blue-50 text-blue-800 border-blue-200{% endif %}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
 
         {% block auth_content %}{% endblock %}
     </div>
 
-    <div class="text-center mt-6 text-body-md text-on-surface-variant">
+    <div class="text-center mt-8 text-sm text-[#64748b]">
         {% block auth_footer %}{% endblock %}
     </div>
 </div>
+
+<script>
+function togglePassword(btn) {
+    var input = btn.parentElement.querySelector('input');
+    var icon = btn.querySelector('.material-symbols-outlined');
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.textContent = 'visibility';
+    } else {
+        input.type = 'password';
+        icon.textContent = 'visibility_off';
+    }
+}
+</script>
 {% endblock %}

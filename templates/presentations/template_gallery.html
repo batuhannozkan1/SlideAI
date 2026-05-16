@@ -20,7 +20,7 @@
             <p class="text-sm text-on-surface-variant mt-1 line-clamp-2">{{ template.description|truncatewords:15 }}</p>
         </div>
         <div class="px-5 pb-4">
-            <a href="{% url 'presentations:template-preview' pk=template.pk %}" class="text-sm text-primary hover:underline font-medium flex items-center gap-1">
+            <a href="{% url 'template-preview' pk=template.pk %}" class="text-sm text-primary hover:underline font-medium flex items-center gap-1">
                 Önizle
                 <span class="material-symbols-outlined text-sm">arrow_forward</span>
             </a>

@@ -4,5 +4,5 @@ from django.shortcuts import redirect, render
 
 def landing_view(request: HttpRequest) -> HttpResponse:
     if request.user.is_authenticated:
-        return redirect("presentations:dashboard")
+        return redirect("dashboard")
     return render(request, "landing.html")

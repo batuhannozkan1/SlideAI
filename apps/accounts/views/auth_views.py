@@ -21,7 +21,7 @@ def register_view(request: HttpRequest) -> HttpResponse:
                 password=form.cleaned_data["password1"],
             )
             login(request, result.data, backend="apps.accounts.backends.EmailAuthBackend")
-            messages.success(request, "Account created successfully.")
+            messages.success(request, "Hesabınız başarıyla oluşturuldu.")
             return redirect("presentations:list")
     else:
         form = RegisterForm()
@@ -46,7 +46,7 @@ def login_view(request: HttpRequest) -> HttpResponse:
                 next_url = request.GET.get("next", "presentations:list")
                 return redirect(next_url)
             else:
-                messages.error(request, "Invalid email or password.")
+                messages.error(request, "Geçersiz e-posta veya şifre.")
     else:
         form = LoginForm()
 
@@ -57,5 +57,5 @@ def login_view(request: HttpRequest) -> HttpResponse:
 def logout_view(request: HttpRequest) -> HttpResponse:
     if request.method == "POST":
         logout(request)
-        messages.info(request, "You have been logged out.")
+        messages.info(request, "Oturumunuz kapatıldı.")
     return redirect("accounts:login")

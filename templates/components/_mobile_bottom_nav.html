@@ -1,7 +1,7 @@
 {% load nav_tags %}
 {% active_url_name "dashboard" as nav_dashboard %}
 {% active_url_name "list" as nav_list %}
-{% active_nav "/presentations/templates" as nav_templates %}
+{% active_nav "/templates" as nav_templates %}
 {% active_nav "/accounts/profile" as nav_profile %}
 <nav class="lg:hidden fixed bottom-0 left-0 w-full bg-white border-t border-[#e2e8f0] px-2 py-3 flex justify-around items-center z-30 shadow-[0_-4px_12px_rgba(0,0,0,0.05)]">
     <a href="{% url 'dashboard' %}" class="flex flex-col items-center gap-1 {% if nav_dashboard == 'active' %}text-[#3b82f6]{% else %}text-[#64748b] hover:text-[#0f172a]{% endif %} transition-colors">
@@ -17,7 +17,7 @@
             <span class="material-symbols-outlined">add</span>
         </a>
     </div>
-    <a href="{% url 'presentations:template-gallery' %}" class="flex flex-col items-center gap-1 {% if nav_templates == 'active' %}text-[#3b82f6]{% else %}text-[#64748b] hover:text-[#0f172a]{% endif %} transition-colors">
+    <a href="{% url 'template-gallery' %}" class="flex flex-col items-center gap-1 {% if nav_templates == 'active' %}text-[#3b82f6]{% else %}text-[#64748b] hover:text-[#0f172a]{% endif %} transition-colors">
         <span class="material-symbols-outlined {% if nav_templates == 'active' %}fill{% endif %}">dashboard</span>
         <span class="text-[10px] font-semibold">Şablonlar</span>
     </a>
