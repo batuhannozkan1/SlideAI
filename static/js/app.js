@@ -3,23 +3,94 @@ document.addEventListener("DOMContentLoaded", function () {
     var csrfEl = document.querySelector("[name=csrfmiddlewaretoken]");
     if (csrfEl) window.CSRF_TOKEN = csrfEl.value;
 
-    // Sidebar toggle (mobile)
+    // Elements
     var sidebar = document.getElementById("sidebar");
     var overlay = document.getElementById("sidebarOverlay");
     var openBtn = document.getElementById("sidebarOpen");
     var closeBtn = document.getElementById("sidebarClose");
+    var toggleBtn = document.getElementById("sidebarToggle");
+    var mainWrapper = document.getElementById("mainWrapper");
+    var topbarLogo = document.getElementById("topbarLogo");
+    var lgBreakpoint = 1024;
 
-    function openSidebar() {
+    function isDesktop() {
+        return window.innerWidth >= lgBreakpoint;
+    }
+
+    // Mobile sidebar (overlay mode)
+    function openMobileSidebar() {
         if (sidebar) sidebar.classList.add("sidebar-open");
         if (overlay) overlay.classList.remove("hidden");
     }
-    function closeSidebar() {
+    function closeMobileSidebar() {
         if (sidebar) sidebar.classList.remove("sidebar-open");
         if (overlay) overlay.classList.add("hidden");
     }
-    if (openBtn) openBtn.addEventListener("click", openSidebar);
-    if (closeBtn) closeBtn.addEventListener("click", closeSidebar);
-    if (overlay) overlay.addEventListener("click", closeSidebar);
+
+    // Desktop sidebar (collapse mode)
+    function collapseSidebar() {
+        if (sidebar) sidebar.classList.add("sidebar-collapsed");
+        if (mainWrapper) mainWrapper.classList.add("sidebar-collapsed");
+        if (openBtn) openBtn.classList.remove("hidden");
+        if (topbarLogo) topbarLogo.classList.remove("hidden");
+    }
+    function expandSidebar() {
+        if (sidebar) sidebar.classList.remove("sidebar-collapsed");
+        if (mainWrapper) mainWrapper.classList.remove("sidebar-collapsed");
+        if (openBtn) openBtn.classList.add("hidden");
+        if (topbarLogo) topbarLogo.classList.add("hidden");
+    }
+
+    // Burger button — opens sidebar (mobile: overlay, desktop: expand)
+    if (openBtn) {
+        openBtn.addEventListener("click", function () {
+            if (isDesktop()) {
+                expandSidebar();
+            } else {
+                openMobileSidebar();
+            }
+        });
+    }
+
+    // Close button inside sidebar (mobile only)
+    if (closeBtn) {
+        closeBtn.addEventListener("click", closeMobileSidebar);
+    }
+
+    // Toggle button (menu_open) inside sidebar — collapses on desktop, closes on mobile
+    if (toggleBtn) {
+        toggleBtn.addEventListener("click", function () {
+            if (isDesktop()) {
+                collapseSidebar();
+            } else {
+                closeMobileSidebar();
+            }
+        });
+    }
+
+    // Overlay click closes mobile sidebar
+    if (overlay) overlay.addEventListener("click", closeMobileSidebar);
+
+    // Update burger + logo visibility based on screen and sidebar state
+    function updateBurgerVisibility() {
+        if (!openBtn) return;
+        if (isDesktop()) {
+            var isCollapsed = sidebar && sidebar.classList.contains("sidebar-collapsed");
+            if (isCollapsed) {
+                openBtn.classList.remove("hidden");
+                if (topbarLogo) topbarLogo.classList.remove("hidden");
+            } else {
+                openBtn.classList.add("hidden");
+                if (topbarLogo) topbarLogo.classList.add("hidden");
+            }
+        } else {
+            openBtn.classList.remove("hidden");
+            if (topbarLogo) topbarLogo.classList.remove("hidden");
+        }
+    }
+
+    updateBurgerVisibility();
+    window.addEventListener("resize", updateBurgerVisibility);
 
     // Dropdown toggle
     document.querySelectorAll("[data-dropdown]").forEach(function (trigger) {

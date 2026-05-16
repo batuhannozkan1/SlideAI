@@ -1,5 +1,15 @@
 body {
     font-family: 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Hidden scrollbar utility */
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
 }
 
 /* Sidebar scrollbar */
@@ -10,11 +20,11 @@ body {
     background: transparent;
 }
 .sidebar-scroll::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.1);
     border-radius: 2px;
 }
 .sidebar-scroll::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(0, 0, 0, 0.15);
 }
 
 /* Toast animations */
@@ -38,7 +48,7 @@ body {
     width: 48px;
     height: 48px;
     border: 4px solid #e2e8f0;
-    border-top-color: #4648d4;
+    border-top-color: #3b82f6;
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
 }
@@ -49,6 +59,16 @@ body {
 /* Sidebar mobile transition */
 .sidebar-open {
     transform: translateX(0) !important;
+}
+
+/* Desktop sidebar collapse */
+@media (min-width: 1024px) {
+    #sidebar.sidebar-collapsed {
+        transform: translateX(-100%);
+    }
+    #mainWrapper.sidebar-collapsed {
+        margin-left: 0;
+    }
 }
 
 /* Color dot for theme selectors */
@@ -81,10 +101,15 @@ body {
 /* Dashboard chart bars */
 .chart-bar {
     border-radius: 4px 4px 0 0;
-    background: #c0c1ff;
+    background: #bfdbfe;
     min-height: 4px;
     transition: height 0.3s ease;
 }
 .chart-bar:hover {
-    background: #6366f1;
+    background: #3b82f6;
+}
+
+/* Material icon filled variant */
+.material-symbols-outlined.fill {
+    font-variation-settings: 'FILL' 1;
 }
