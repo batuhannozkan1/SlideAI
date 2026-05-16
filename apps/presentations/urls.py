@@ -4,7 +4,6 @@ from apps.presentations.views import (
     export_views,
     presentation_views,
     slide_views,
-    template_views,
 )
 
 app_name = "presentations"
@@ -27,9 +26,6 @@ urlpatterns = [
     path("<uuid:presentation_pk>/slides/<uuid:pk>/delete/", slide_views.slide_delete, name="slide-delete"),
     path("<uuid:presentation_pk>/slides/<uuid:pk>/regenerate/", slide_views.slide_regenerate, name="slide-regenerate"),
     path("<uuid:presentation_pk>/slides/reorder/", slide_views.slide_reorder, name="slide-reorder"),
-    # Templates
-    path("templates/", template_views.template_gallery, name="template-gallery"),
-    path("templates/<uuid:pk>/preview/", template_views.template_preview, name="template-preview"),
     # Export
     path("<uuid:pk>/export/pdf/", export_views.export_pdf, name="export-pdf"),
     path("<uuid:pk>/export/pptx/", export_views.export_pptx, name="export-pptx"),

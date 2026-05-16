@@ -1,183 +1,170 @@
-{% extends "base.html" %}
+{% extends "layouts/app.html" %}
 
 {% block title %}AI ile Sunum Oluştur — SlideAI{% endblock %}
 
 {% block extra_css %}
 <style>
-    .generate-form { max-width: 700px; margin: 0 auto; }
-    .style-option { cursor: pointer; }
     .style-option input[type="radio"] { display: none; }
     .style-option .style-card {
-        padding: 1rem;
+        padding: 0.75rem;
         border: 2px solid #e2e8f0;
-        border-radius: 8px;
+        border-radius: 0.5rem;
         text-align: center;
         transition: border-color 0.2s, background 0.2s;
+        cursor: pointer;
     }
     .style-option input[type="radio"]:checked + .style-card {
-        border-color: #667eea;
-        background: #eef2ff;
+        border-color: #3b82f6;
+        background: #dbeafe;
     }
-    .style-option .style-card:hover { border-color: #a0aec0; }
-    .template-option { cursor: pointer; }
+    .style-option .style-card:hover { border-color: #94a3b8; }
     .template-option input[type="radio"] { display: none; }
     .template-option .tmpl-card {
-        padding: 0.75rem 1rem;
+        padding: 0.5rem 0.75rem;
         border: 2px solid #e2e8f0;
-        border-radius: 8px;
+        border-radius: 0.5rem;
         transition: border-color 0.2s, background 0.2s;
+        cursor: pointer;
     }
     .template-option input[type="radio"]:checked + .tmpl-card {
-        border-color: #667eea;
-        background: #eef2ff;
+        border-color: #3b82f6;
+        background: #dbeafe;
     }
-    .template-option .tmpl-card:hover { border-color: #a0aec0; }
-    .slider-value {
-        display: inline-block;
-        width: 2.5rem;
-        text-align: center;
-        font-weight: 700;
-        font-size: 1.25rem;
-        color: #667eea;
-    }
+    .template-option .tmpl-card:hover { border-color: #94a3b8; }
     .loading-overlay {
         display: none;
         position: fixed;
         inset: 0;
-        background: rgba(255,255,255,0.9);
+        background: rgba(248, 249, 255, 0.95);
         z-index: 9999;
         justify-content: center;
         align-items: center;
         flex-direction: column;
     }
     .loading-overlay.active { display: flex; }
-    .loading-spinner {
-        width: 48px;
-        height: 48px;
-        border: 4px solid #e2e8f0;
-        border-top-color: #667eea;
-        border-radius: 50%;
-        animation: spin 0.8s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="generate-form">
-    <h2 class="mb-1">&#x2728; AI ile Sunum Oluştur</h2>
-    <p class="text-muted mb-4">Konunuzu yazın, yapay zeka slaytlarınızı hazırlasın.</p>
+<div class="max-w-2xl mx-auto">
+    <div class="mb-6">
+        <h2 class="text-2xl font-semibold text-on-surface flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary">auto_awesome</span>
+            AI ile Sunum Oluştur
+        </h2>
+        <p class="text-sm text-on-surface-variant mt-1">Konunuzu yazın, yapay zeka slaytlarınızı hazırlasın.</p>
+    </div>
 
-    <form method="post" id="generateForm">
-        {% csrf_token %}
+    <div class="bg-white rounded-xl border border-outline-variant p-6 shadow-sm">
+        <form method="post" id="generateForm" class="space-y-5">
+            {% csrf_token %}
 
-        <div class="mb-4">
-            <label for="id_topic" class="form-label fw-semibold">Konu</label>
-            <textarea name="topic" id="id_topic" class="form-control" rows="2"
-                      placeholder="Sunumunuzun konusunu yazın..." required
-                      maxlength="500" autofocus>{{ form.topic.value|default:'' }}</textarea>
-        </div>
+            <div>
+                <label for="id_topic" class="block text-sm font-medium text-on-surface mb-1">Konu</label>
+                <textarea name="topic" id="id_topic" rows="2" required autofocus maxlength="500"
+                          placeholder="Sunumunuzun konusunu yazın..."
+                          class="w-full px-3 py-2 border border-outline-variant rounded-lg text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary">{{ form.topic.value|default:'' }}</textarea>
+            </div>
 
-        <div class="mb-4">
-            <label class="form-label fw-semibold">Şablon</label>
-            <div class="row g-2">
-                <div class="col-6 col-md-3">
-                    <label class="template-option d-block">
+            <div>
+                <label class="block text-sm font-medium text-on-surface mb-2">Şablon</label>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+                    <label class="template-option">
                         <input type="radio" name="template" value="" {% if not form.template.value %}checked{% endif %}>
                         <div class="tmpl-card">
-                            <div class="fw-semibold">Serbest</div>
-                            <small class="text-muted">AI karar versin</small>
+                            <div class="font-semibold text-sm">Serbest</div>
+                            <span class="text-xs text-on-surface-variant">AI karar versin</span>
                         </div>
                     </label>
-                </div>
-                {% for tmpl in form.template.field.queryset %}
-                <div class="col-6 col-md-3">
-                    <label class="template-option d-block">
+                    {% for tmpl in form.template.field.queryset %}
+                    <label class="template-option">
                         <input type="radio" name="template" value="{{ tmpl.pk }}"
                                {% if form.template.value|stringformat:"s" == tmpl.pk|stringformat:"s" %}checked{% endif %}>
                         <div class="tmpl-card">
-                            <div class="fw-semibold">{{ tmpl.name }}</div>
-                            <small class="text-muted">{{ tmpl.structure.slides|length }} slayt</small>
+                            <div class="font-semibold text-sm">{{ tmpl.name }}</div>
+                            <span class="text-xs text-on-surface-variant">{{ tmpl.structure.slides|length }} slayt</span>
                         </div>
                     </label>
+                    {% endfor %}
                 </div>
-                {% endfor %}
             </div>
-        </div>
 
-        <div class="mb-4">
-            <label class="form-label fw-semibold">Slayt Sayısı: <span class="slider-value" id="slideCountValue">{{ form.num_slides.value|default:8 }}</span></label>
-            <input type="range" name="num_slides" id="id_num_slides" class="form-range"
-                   min="3" max="20" step="1" value="{{ form.num_slides.value|default:8 }}">
-            <div class="d-flex justify-content-between text-muted small">
-                <span>3</span><span>20</span>
+            <div>
+                <label class="block text-sm font-medium text-on-surface mb-1">
+                    Slayt Sayısı: <span class="text-primary font-bold" id="slideCountValue">{{ form.num_slides.value|default:8 }}</span>
+                </label>
+                <input type="range" name="num_slides" id="id_num_slides"
+                       min="3" max="20" step="1" value="{{ form.num_slides.value|default:8 }}"
+                       class="w-full h-2 bg-surface-container-high rounded-lg appearance-none cursor-pointer accent-primary">
+                <div class="flex justify-between text-xs text-on-surface-variant mt-1">
+                    <span>3</span><span>20</span>
+                </div>
             </div>
-        </div>
 
-        <div class="mb-4">
-            <label class="form-label fw-semibold">Stil</label>
-            <div class="row g-2">
-                {% for value, label in form.style.field.choices %}
-                <div class="col-6 col-md-3">
-                    <label class="style-option d-block">
+            <div>
+                <label class="block text-sm font-medium text-on-surface mb-2">Stil</label>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+                    {% for value, label in form.style.field.choices %}
+                    <label class="style-option">
                         <input type="radio" name="style" value="{{ value }}"
                                {% if form.style.value == value or form.style.value == None and value == "professional" %}checked{% endif %}>
-                        <div class="style-card">{{ label }}</div>
+                        <div class="style-card text-sm">{{ label }}</div>
                     </label>
+                    {% endfor %}
                 </div>
-                {% endfor %}
             </div>
-        </div>
 
-        <div class="mb-4">
-            <label for="id_theme" class="form-label fw-semibold">Tema</label>
-            <select name="theme" id="id_theme" class="form-select">
-                <option value="">Tema seçin...</option>
-                {% for theme in form.theme.field.queryset %}
-                <option value="{{ theme.pk }}" {% if form.theme.value|stringformat:"s" == theme.pk|stringformat:"s" %}selected{% endif %}>
-                    {{ theme.name }}
-                </option>
-                {% endfor %}
-            </select>
-        </div>
-
-        <div class="mb-4">
-            <a href="#" class="text-decoration-none small" onclick="document.getElementById('extraSection').classList.toggle('d-none'); return false;">
-                + Ek talimatlar ekle
-            </a>
-            <div id="extraSection" class="mt-2 {% if not form.additional_instructions.value %}d-none{% endif %}">
-                <textarea name="additional_instructions" class="form-control" rows="3"
-                          placeholder="Ek talimatlar (opsiyonel)...">{{ form.additional_instructions.value|default:'' }}</textarea>
+            <div>
+                <label for="id_theme" class="block text-sm font-medium text-on-surface mb-1">Tema</label>
+                <select name="theme" id="id_theme"
+                        class="w-full px-3 py-2 border border-outline-variant rounded-lg text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary bg-white">
+                    <option value="">Tema seçin...</option>
+                    {% for theme in form.theme.field.queryset %}
+                    <option value="{{ theme.pk }}" {% if form.theme.value|stringformat:"s" == theme.pk|stringformat:"s" %}selected{% endif %}>
+                        {{ theme.name }}
+                    </option>
+                    {% endfor %}
+                </select>
             </div>
-        </div>
 
-        <button type="submit" class="btn btn-primary btn-lg w-100 fw-semibold" id="generateBtn">
-            &#x2728; Sunumu Oluştur
-        </button>
-    </form>
+            <div>
+                <button type="button" class="text-sm text-primary hover:underline" onclick="document.getElementById('extraSection').classList.toggle('hidden')">
+                    + Ek talimatlar ekle
+                </button>
+                <div id="extraSection" class="mt-2 {% if not form.additional_instructions.value %}hidden{% endif %}">
+                    <textarea name="additional_instructions" rows="3"
+                              placeholder="Ek talimatlar (opsiyonel)..."
+                              class="w-full px-3 py-2 border border-outline-variant rounded-lg text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary">{{ form.additional_instructions.value|default:'' }}</textarea>
+                </div>
+            </div>
+
+            <button type="submit" id="generateBtn"
+                    class="w-full py-3 bg-[#eff6ff] text-[#2563eb] border border-[#bfdbfe] font-semibold rounded-xl hover:bg-[#dbeafe] transition-colors flex items-center justify-center gap-2">
+                <span class="material-symbols-outlined text-sm">auto_awesome</span>
+                Sunumu Oluştur
+            </button>
+        </form>
+    </div>
 </div>
 
 <div class="loading-overlay" id="loadingOverlay">
-    <div class="loading-spinner mb-3"></div>
-    <h5>Slaytlarınız oluşturuluyor...</h5>
-    <p class="text-muted">Bu işlem birkaç saniye sürebilir.</p>
+    <div class="loading-spinner mb-4"></div>
+    <h3 class="text-lg font-semibold text-on-surface">Slaytlarınız oluşturuluyor...</h3>
+    <p class="text-sm text-on-surface-variant mt-1">Bu işlem birkaç saniye sürebilir.</p>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const slider = document.getElementById('id_num_slides');
-    const display = document.getElementById('slideCountValue');
+    var slider = document.getElementById('id_num_slides');
+    var display = document.getElementById('slideCountValue');
     if (slider && display) {
-        slider.addEventListener('input', function() {
-            display.textContent = this.value;
-        });
+        slider.addEventListener('input', function() { display.textContent = this.value; });
     }
-
-    const form = document.getElementById('generateForm');
-    const overlay = document.getElementById('loadingOverlay');
-    const btn = document.getElementById('generateBtn');
+    var form = document.getElementById('generateForm');
+    var overlay = document.getElementById('loadingOverlay');
+    var btn = document.getElementById('generateBtn');
     if (form) {
         form.addEventListener('submit', function() {
             if (overlay) overlay.classList.add('active');

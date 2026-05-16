@@ -36,3 +36,16 @@ class UpdateSlideDTO:
     body: str | None = None
     notes: str | None = None
     layout: str | None = None
+
+
+@dataclass(frozen=True)
+class DashboardStatsDTO:
+    total_presentations: int
+    total_slides: int
+    presentations_this_month: int
+    growth_percentage: float
+    draft_count: int
+    published_count: int
+    chart_labels: tuple[str, ...]
+    chart_values: tuple[int, ...]
+    chart_max: int

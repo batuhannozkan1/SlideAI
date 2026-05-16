@@ -10,7 +10,7 @@ class RegisterForm(forms.Form):
     def clean(self):
         cleaned = super().clean()
         if cleaned.get("password1") != cleaned.get("password2"):
-            raise forms.ValidationError("Passwords do not match.")
+            raise forms.ValidationError("Şifreler eşleşmiyor.")
         return cleaned
 
 

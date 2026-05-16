@@ -1,31 +1,43 @@
-{% extends "base.html" %}
+{% extends "layouts/app.html" %}
 
-{% block title %}Slide Editor — SlideAI{% endblock %}
+{% block title %}Slayt Editörü — SlideAI{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-8">
-        <h2 class="mb-4">Slide Editor</h2>
-        <form method="post">
+<div class="max-w-2xl">
+    <h2 class="text-2xl font-semibold text-on-surface mb-6">Slayt Editörü</h2>
+
+    <div class="bg-white rounded-xl border border-outline-variant p-6 shadow-sm">
+        <form method="post" class="space-y-4">
             {% csrf_token %}
-            <div class="mb-3">
-                <label for="id_heading" class="form-label">Heading</label>
-                <input type="text" name="heading" id="id_heading" class="form-control" value="{{ form.heading.value|default:"" }}">
+            <div>
+                <label for="id_heading" class="block text-sm font-medium text-on-surface mb-1">Başlık</label>
+                <input type="text" name="heading" id="id_heading" value="{{ form.heading.value|default:"" }}"
+                       class="w-full px-3 py-2 border border-outline-variant rounded-lg text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary">
             </div>
-            <div class="mb-3">
-                <label for="id_body" class="form-label">Body</label>
-                <textarea name="body" id="id_body" class="form-control" rows="6">{{ form.body.value|default:"" }}</textarea>
+            <div>
+                <label for="id_body" class="block text-sm font-medium text-on-surface mb-1">İçerik</label>
+                <textarea name="body" id="id_body" rows="6"
+                          class="w-full px-3 py-2 border border-outline-variant rounded-lg text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary">{{ form.body.value|default:"" }}</textarea>
             </div>
-            <div class="mb-3">
-                <label for="id_notes" class="form-label">Speaker Notes</label>
-                <textarea name="notes" id="id_notes" class="form-control" rows="3">{{ form.notes.value|default:"" }}</textarea>
+            <div>
+                <label for="id_notes" class="block text-sm font-medium text-on-surface mb-1">Konuşmacı Notları</label>
+                <textarea name="notes" id="id_notes" rows="3"
+                          class="w-full px-3 py-2 border border-outline-variant rounded-lg text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary">{{ form.notes.value|default:"" }}</textarea>
             </div>
-            <div class="mb-3">
-                <label for="id_layout" class="form-label">Layout</label>
-                {{ form.layout }}
+            <div>
+                <label for="id_layout" class="block text-sm font-medium text-on-surface mb-1">Düzen</label>
+                <div class="[&_select]:w-full [&_select]:px-3 [&_select]:py-2 [&_select]:border [&_select]:border-outline-variant [&_select]:rounded-lg [&_select]:text-sm [&_select]:bg-white [&_select]:focus:outline-none [&_select]:focus:border-primary [&_select]:focus:ring-1 [&_select]:focus:ring-primary">
+                    {{ form.layout }}
+                </div>
             </div>
-            <button type="submit" class="btn btn-primary">Save Slide</button>
-            <a href="{% url 'presentations:detail' pk=presentation_pk %}" class="btn btn-outline-secondary">Cancel</a>
+            <div class="flex gap-3 pt-2">
+                <button type="submit" class="px-4 py-2 bg-[#eff6ff] text-[#2563eb] border border-[#bfdbfe] font-medium rounded-xl hover:bg-[#dbeafe] transition-colors text-sm">
+                    Kaydet
+                </button>
+                <a href="{% url 'presentations:detail' pk=presentation_pk %}" class="px-4 py-2 border border-outline-variant text-on-surface rounded-xl hover:bg-surface-container-low transition-colors text-sm font-medium">
+                    İptal
+                </a>
+            </div>
         </form>
     </div>
 </div>

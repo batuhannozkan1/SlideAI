@@ -1,22 +1,33 @@
-{% extends "base.html" %}
+{% extends "layouts/app.html" %}
 
-{% block title %}Slides — SlideAI{% endblock %}
+{% block title %}Slaytlar — SlideAI{% endblock %}
 
 {% block content %}
-<h2 class="mb-4">Slides</h2>
+<div class="flex items-center justify-between mb-6">
+    <h2 class="text-2xl font-semibold text-on-surface">Slaytlar</h2>
+    <a href="{% url 'presentations:detail' pk=presentation_pk %}" class="px-3 py-2 border border-outline-variant text-on-surface rounded-xl hover:bg-surface-container-low transition-colors text-sm font-medium flex items-center gap-1">
+        <span class="material-symbols-outlined text-sm">arrow_back</span>
+        Geri
+    </a>
+</div>
 
 {% if slides %}
-<div class="list-group">
+<div class="space-y-3">
     {% for slide in slides %}
-    <div class="list-group-item">
-        <h5>{{ forloop.counter }}. {{ slide.heading|default:"Untitled" }}</h5>
-        <p class="text-muted mb-0">{{ slide.body|truncatewords:20 }}</p>
+    <div class="bg-white rounded-xl border border-outline-variant p-4 shadow-sm hover:shadow-md transition-shadow">
+        <div class="flex items-start gap-3">
+            <span class="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-sm font-semibold text-on-surface-variant flex-shrink-0">
+                {{ forloop.counter }}
+            </span>
+            <div class="min-w-0 flex-1">
+                <h3 class="font-semibold text-on-surface">{{ slide.heading|default:"Başlıksız" }}</h3>
+                <p class="text-sm text-on-surface-variant mt-1 line-clamp-2">{{ slide.body|truncatewords:20 }}</p>
+            </div>
+        </div>
     </div>
     {% endfor %}
 </div>
 {% else %}
-<p class="text-muted">No slides in this presentation.</p>
+<p class="text-on-surface-variant">Bu sunumda henüz slayt yok.</p>
 {% endif %}
-
-<a href="{% url 'presentations:detail' pk=presentation_pk %}" class="btn btn-outline-secondary mt-3">Back</a>
 {% endblock %}

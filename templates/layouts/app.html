@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block body_class %}bg-[#f8fafc] text-on-background h-screen flex overflow-hidden{% endblock %}
+
+{% block body %}
+<div id="sidebarOverlay" class="fixed inset-0 bg-slate-900/80 z-40 hidden lg:hidden"></div>
+
+{% include "components/_sidebar.html" %}
+
+<div id="mainWrapper" class="flex-1 flex flex-col lg:ml-sidebar w-full min-h-screen relative transition-[margin] duration-300">
+    {% include "components/_topbar.html" %}
+
+    <main class="flex-1 overflow-y-auto bg-[#f8fafc] p-4 md:p-6 lg:p-8 pb-24 lg:pb-8">
+        {% include "components/_messages.html" %}
+        <div class="max-w-7xl mx-auto">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    {% include "components/_mobile_bottom_nav.html" %}
+</div>
+{% endblock %}
+
+{% block head_css %}{% block extra_css %}{% endblock %}{% endblock %}
+{% block body_js %}{% block extra_js %}{% endblock %}{% endblock %}

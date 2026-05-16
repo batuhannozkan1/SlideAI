@@ -1,26 +1,38 @@
-{% extends "base.html" %}
+{% extends "layouts/auth.html" %}
 
-{% block title %}Login — SlideAI{% endblock %}
+{% block title %}Giriş Yap — SlideAI{% endblock %}
 
-{% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6 col-lg-4">
-        <h2 class="mb-4">Login</h2>
-        <form method="post">
-            {% csrf_token %}
-            <div class="mb-3">
-                <label for="id_email" class="form-label">Email</label>
-                <input type="email" name="email" id="id_email" class="form-control" required>
-            </div>
-            <div class="mb-3">
-                <label for="id_password" class="form-label">Password</label>
-                <input type="password" name="password" id="id_password" class="form-control" required>
-            </div>
-            <button type="submit" class="btn btn-primary w-100">Login</button>
-        </form>
-        <p class="mt-3 text-center">
-            Don't have an account? <a href="{% url 'accounts:register' %}">Register</a>
-        </p>
+{% block auth_title %}Hoş Geldiniz{% endblock %}
+{% block auth_subtitle %}Yapay zeka ile sunum hazırlamak için giriş yapın{% endblock %}
+
+{% block auth_content %}
+<form method="post" class="space-y-5">
+    {% csrf_token %}
+    <div class="space-y-1.5">
+        <label for="id_email" class="block text-sm font-semibold text-[#0f172a]">E-posta Adresi</label>
+        <input type="email" name="email" id="id_email" required autofocus placeholder="ornek@sirket.com"
+               class="w-full bg-[#f8fafc] border border-[#e2e8f0] rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-4 focus:ring-[#eff6ff] focus:border-[#3b82f6] focus:bg-white transition-all">
     </div>
-</div>
+    <div class="space-y-1.5">
+        <div class="flex items-center justify-between">
+            <label for="id_password" class="block text-sm font-semibold text-[#0f172a]">Şifre</label>
+            <a href="#" class="text-sm font-medium text-[#2563eb] hover:underline">Şifremi Unuttum</a>
+        </div>
+        <div class="relative">
+            <input type="password" name="password" id="id_password" required placeholder="••••••••"
+                   class="w-full bg-[#f8fafc] border border-[#e2e8f0] rounded-xl px-4 py-3 pr-11 text-sm focus:outline-none focus:ring-4 focus:ring-[#eff6ff] focus:border-[#3b82f6] focus:bg-white transition-all">
+            <button type="button" onclick="togglePassword(this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-[#94a3b8] hover:text-[#0f172a] transition-colors">
+                <span class="material-symbols-outlined text-[20px]">visibility_off</span>
+            </button>
+        </div>
+    </div>
+    <button type="submit" class="group w-full bg-[#eff6ff] text-[#2563eb] border border-[#bfdbfe] hover:bg-[#dbeafe] font-semibold py-3.5 rounded-xl transition-all duration-300 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] mt-2 flex justify-center items-center gap-2">
+        Giriş Yap
+        <span class="material-symbols-outlined text-[20px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+    </button>
+</form>
+{% endblock %}
+
+{% block auth_footer %}
+Hesabınız yok mu? <a href="{% url 'accounts:register' %}" class="font-semibold text-[#2563eb] hover:underline">Ücretsiz Kayıt Ol</a>
 {% endblock %}

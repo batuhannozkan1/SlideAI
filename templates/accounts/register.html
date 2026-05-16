@@ -1,43 +1,58 @@
-{% extends "base.html" %}
+{% extends "layouts/auth.html" %}
 
-{% block title %}Register — SlideAI{% endblock %}
+{% block title %}Kayıt Ol — SlideAI{% endblock %}
 
-{% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6 col-lg-4">
-        <h2 class="mb-4">Create Account</h2>
-        <form method="post">
-            {% csrf_token %}
-            {% if form.errors %}
-            <div class="alert alert-danger">
-                {% for field, errors in form.errors.items %}
-                    {% for error in errors %}
-                    <p class="mb-0">{{ error }}</p>
-                    {% endfor %}
-                {% endfor %}
-            </div>
-            {% endif %}
-            <div class="mb-3">
-                <label for="id_username" class="form-label">Username</label>
-                <input type="text" name="username" id="id_username" class="form-control" required>
-            </div>
-            <div class="mb-3">
-                <label for="id_email" class="form-label">Email</label>
-                <input type="email" name="email" id="id_email" class="form-control" required>
-            </div>
-            <div class="mb-3">
-                <label for="id_password1" class="form-label">Password</label>
-                <input type="password" name="password1" id="id_password1" class="form-control" required>
-            </div>
-            <div class="mb-3">
-                <label for="id_password2" class="form-label">Confirm Password</label>
-                <input type="password" name="password2" id="id_password2" class="form-control" required>
-            </div>
-            <button type="submit" class="btn btn-primary w-100">Register</button>
-        </form>
-        <p class="mt-3 text-center">
-            Already have an account? <a href="{% url 'accounts:login' %}">Login</a>
-        </p>
-    </div>
+{% block auth_title %}Hesap Oluştur{% endblock %}
+{% block auth_subtitle %}Ücretsiz hesabınızı oluşturun ve hemen başlayın{% endblock %}
+
+{% block auth_content %}
+{% if form.errors %}
+<div class="mb-4 p-3 bg-red-50 text-red-800 border border-red-200 rounded-xl text-sm">
+    {% for field, errors in form.errors.items %}
+        {% for error in errors %}<p class="mb-0">{{ error }}</p>{% endfor %}
+    {% endfor %}
 </div>
+{% endif %}
+
+<form method="post" class="space-y-5">
+    {% csrf_token %}
+    <div class="space-y-1.5">
+        <label for="id_username" class="block text-sm font-semibold text-[#0f172a]">Kullanıcı Adı</label>
+        <input type="text" name="username" id="id_username" required autofocus placeholder="kullaniciadi"
+               class="w-full bg-[#f8fafc] border border-[#e2e8f0] rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-4 focus:ring-[#eff6ff] focus:border-[#3b82f6] focus:bg-white transition-all">
+    </div>
+    <div class="space-y-1.5">
+        <label for="id_email" class="block text-sm font-semibold text-[#0f172a]">E-posta Adresi</label>
+        <input type="email" name="email" id="id_email" required placeholder="ornek@sirket.com"
+               class="w-full bg-[#f8fafc] border border-[#e2e8f0] rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-4 focus:ring-[#eff6ff] focus:border-[#3b82f6] focus:bg-white transition-all">
+    </div>
+    <div class="space-y-1.5">
+        <label for="id_password1" class="block text-sm font-semibold text-[#0f172a]">Şifre</label>
+        <div class="relative">
+            <input type="password" name="password1" id="id_password1" required placeholder="••••••••"
+                   class="w-full bg-[#f8fafc] border border-[#e2e8f0] rounded-xl px-4 py-3 pr-11 text-sm focus:outline-none focus:ring-4 focus:ring-[#eff6ff] focus:border-[#3b82f6] focus:bg-white transition-all">
+            <button type="button" onclick="togglePassword(this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-[#94a3b8] hover:text-[#0f172a] transition-colors">
+                <span class="material-symbols-outlined text-[20px]">visibility_off</span>
+            </button>
+        </div>
+    </div>
+    <div class="space-y-1.5">
+        <label for="id_password2" class="block text-sm font-semibold text-[#0f172a]">Şifre Tekrar</label>
+        <div class="relative">
+            <input type="password" name="password2" id="id_password2" required placeholder="••••••••"
+                   class="w-full bg-[#f8fafc] border border-[#e2e8f0] rounded-xl px-4 py-3 pr-11 text-sm focus:outline-none focus:ring-4 focus:ring-[#eff6ff] focus:border-[#3b82f6] focus:bg-white transition-all">
+            <button type="button" onclick="togglePassword(this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-[#94a3b8] hover:text-[#0f172a] transition-colors">
+                <span class="material-symbols-outlined text-[20px]">visibility_off</span>
+            </button>
+        </div>
+    </div>
+    <button type="submit" class="group w-full bg-[#eff6ff] text-[#2563eb] border border-[#bfdbfe] hover:bg-[#dbeafe] font-semibold py-3.5 rounded-xl transition-all duration-300 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] mt-2 flex justify-center items-center gap-2">
+        Kayıt Ol
+        <span class="material-symbols-outlined text-[20px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+    </button>
+</form>
+{% endblock %}
+
+{% block auth_footer %}
+Zaten hesabınız var mı? <a href="{% url 'accounts:login' %}" class="font-semibold text-[#2563eb] hover:underline">Giriş Yap</a>
 {% endblock %}

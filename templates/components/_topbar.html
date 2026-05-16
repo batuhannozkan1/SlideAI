@@ -1,0 +1,44 @@
+{% load static %}
+<header class="bg-white/80 backdrop-blur-md sticky top-0 z-10 border-b border-[#e2e8f0]">
+    <div class="flex justify-between items-center w-full px-4 md:px-10 py-4 h-16">
+        <div class="flex items-center gap-3">
+            <button id="sidebarOpen" class="text-[#64748b] hover:text-[#0f172a] p-1 hidden">
+                <span class="material-symbols-outlined text-[20px]">menu</span>
+            </button>
+            <a id="topbarLogo" href="{% url 'dashboard' %}" class="font-bold text-xl text-[#0f172a] tracking-tight hidden">SlideAI</a>
+        </div>
+
+        <div class="hidden md:flex flex-1 justify-center px-4">
+            <div class="relative max-w-sm w-full">
+                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#94a3b8] text-[20px]">search</span>
+                <input type="text" placeholder="Projelerde ara..." class="w-full pl-10 pr-4 py-2 bg-[#f8fafc] border border-[#e2e8f0] rounded-full text-sm focus:outline-none focus:border-[#3b82f6] transition-all">
+            </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+            <button class="text-[#64748b] hover:text-[#3b82f6] transition-colors w-10 h-10 flex items-center justify-center rounded-full hover:bg-[#eff6ff]">
+                <span class="material-symbols-outlined text-[22px]">notifications</span>
+            </button>
+            {% if user.is_authenticated %}
+            <div class="relative ml-1">
+                <button data-dropdown="userMenu" class="flex items-center gap-2 cursor-pointer group hover:opacity-80 transition-opacity">
+                    <div class="w-9 h-9 rounded-full bg-[#eef8ff] text-[#007bc2] font-bold text-sm flex items-center justify-center shrink-0">
+                        {{ user.email|first|upper }}
+                    </div>
+                    <div class="hidden sm:flex font-semibold text-[#003366] text-sm items-center tracking-tight">
+                        {{ user.get_full_name|default:user.username }}
+                        <span class="material-symbols-outlined text-[20px] -ml-0.5">arrow_drop_down</span>
+                    </div>
+                </button>
+                <div id="userMenu" class="dropdown-menu hidden absolute right-0 top-full mt-2 w-48 bg-white rounded-xl border border-[#e2e8f0] shadow-lg py-1 z-50">
+                    <a href="{% url 'accounts:profile' %}" class="block px-4 py-2 text-sm text-[#0f172a] hover:bg-[#f8fafc] transition-colors">Profil</a>
+                    <form method="post" action="{% url 'accounts:logout' %}">
+                        {% csrf_token %}
+                        <button type="submit" class="w-full text-left px-4 py-2 text-sm text-[#0f172a] hover:bg-[#f8fafc] transition-colors">Çıkış Yap</button>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</header>

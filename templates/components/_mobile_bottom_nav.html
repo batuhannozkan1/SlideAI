@@ -1,0 +1,28 @@
+{% load nav_tags %}
+{% active_url_name "dashboard" as nav_dashboard %}
+{% active_url_name "list" as nav_list %}
+{% active_nav "/templates" as nav_templates %}
+{% active_nav "/accounts/profile" as nav_profile %}
+<nav class="lg:hidden fixed bottom-0 left-0 w-full bg-white border-t border-[#e2e8f0] px-2 py-3 flex justify-around items-center z-30 shadow-[0_-4px_12px_rgba(0,0,0,0.05)]">
+    <a href="{% url 'dashboard' %}" class="flex flex-col items-center gap-1 {% if nav_dashboard == 'active' %}text-[#3b82f6]{% else %}text-[#64748b] hover:text-[#0f172a]{% endif %} transition-colors">
+        <span class="material-symbols-outlined {% if nav_dashboard == 'active' %}fill{% endif %}">space_dashboard</span>
+        <span class="text-[10px] font-bold">Panel</span>
+    </a>
+    <a href="{% url 'presentations:list' %}" class="flex flex-col items-center gap-1 {% if nav_list == 'active' %}text-[#3b82f6]{% else %}text-[#64748b] hover:text-[#0f172a]{% endif %} transition-colors">
+        <span class="material-symbols-outlined {% if nav_list == 'active' %}fill{% endif %}">slideshow</span>
+        <span class="text-[10px] font-semibold">Sunumlar</span>
+    </a>
+    <div class="relative -mt-10">
+        <a href="{% url 'presentations:generate' %}" class="bg-[#3b82f6] text-white w-14 h-14 rounded-full flex items-center justify-center shadow-lg ring-4 ring-white hover:bg-[#2563eb] transition-colors">
+            <span class="material-symbols-outlined">add</span>
+        </a>
+    </div>
+    <a href="{% url 'template-gallery' %}" class="flex flex-col items-center gap-1 {% if nav_templates == 'active' %}text-[#3b82f6]{% else %}text-[#64748b] hover:text-[#0f172a]{% endif %} transition-colors">
+        <span class="material-symbols-outlined {% if nav_templates == 'active' %}fill{% endif %}">dashboard</span>
+        <span class="text-[10px] font-semibold">Şablonlar</span>
+    </a>
+    <a href="{% url 'accounts:profile' %}" class="flex flex-col items-center gap-1 {% if nav_profile == 'active' %}text-[#3b82f6]{% else %}text-[#64748b] hover:text-[#0f172a]{% endif %} transition-colors">
+        <span class="material-symbols-outlined {% if nav_profile == 'active' %}fill{% endif %}">person</span>
+        <span class="text-[10px] font-semibold">Profil</span>
+    </a>
+</nav>

@@ -1,8 +1,13 @@
 {% if messages %}
-{% for message in messages %}
-<div class="alert alert-{{ message.tags }} alert-dismissible fade show auto-dismiss" role="alert">
-    {{ message }}
-    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+<div class="fixed top-4 right-4 z-[9999] flex flex-col gap-2" id="toastContainer">
+    {% for message in messages %}
+    <div data-auto-dismiss class="px-4 py-3 rounded-lg border text-sm shadow-sm toast-enter
+        {% if message.tags == 'success' %}bg-emerald-50 text-emerald-800 border-emerald-200
+        {% elif message.tags == 'error' or message.tags == 'danger' %}bg-red-50 text-red-800 border-red-200
+        {% elif message.tags == 'warning' %}bg-amber-50 text-amber-800 border-amber-200
+        {% else %}bg-blue-50 text-blue-800 border-blue-200{% endif %}">
+        {{ message }}
+    </div>
+    {% endfor %}
 </div>
-{% endfor %}
 {% endif %}

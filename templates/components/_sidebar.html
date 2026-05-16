@@ -1,0 +1,51 @@
+{% load nav_tags %}
+<aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-sidebar h-screen transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col bg-[#f8fafc] border-r border-[#e2e8f0] py-4">
+    <div class="px-6 py-2 flex items-center justify-between">
+        <a href="{% url 'dashboard' %}">
+            <h1 class="font-bold text-2xl text-[#0f172a] leading-tight tracking-tight">SlideAI</h1>
+        </a>
+        <button id="sidebarToggle" class="text-[#64748b] hover:text-[#0f172a] p-1 flex items-center justify-center rounded-md hover:bg-[#e2e8f0] transition-colors">
+            <span class="material-symbols-outlined text-[20px]">menu_open</span>
+        </button>
+    </div>
+
+    <div class="px-5 py-4">
+        <a href="{% url 'presentations:generate' %}" class="w-full bg-[#eff6ff] text-[#2563eb] border border-[#bfdbfe] py-2.5 rounded-xl text-sm font-medium shadow-sm flex items-center justify-center gap-2 hover:bg-[#dbeafe] transition-all active:scale-95">
+            <span class="material-symbols-outlined text-[20px]">add</span>
+            Yeni Sunum
+        </a>
+    </div>
+
+    <nav class="flex-1 overflow-y-auto sidebar-scroll px-4 space-y-1">
+        {% active_url_name "dashboard" as nav_dashboard %}
+        {% active_url_name "list" as nav_list %}
+        {% active_nav "/templates" as nav_templates %}
+        {% active_nav "/accounts/profile" as nav_profile %}
+        <a class="flex items-center gap-3 w-full px-4 py-3 rounded-lg transition-all duration-200 {% if nav_dashboard == 'active' %}font-semibold bg-[#eff6ff] text-[#1e40af] shadow-sm border border-[#bfdbfe]{% else %}font-medium text-[#64748b] hover:bg-white hover:text-[#0f172a] hover:translate-x-1{% endif %}" href="{% url 'dashboard' %}">
+            <span class="material-symbols-outlined text-[20px] {% if nav_dashboard == 'active' %}fill text-[#3b82f6]{% endif %}">space_dashboard</span>
+            <span class="text-sm">Kontrol Paneli</span>
+        </a>
+        <a class="flex items-center gap-3 w-full px-4 py-3 rounded-lg transition-all duration-200 {% if nav_list == 'active' %}font-semibold bg-[#eff6ff] text-[#1e40af] shadow-sm border border-[#bfdbfe]{% else %}font-medium text-[#64748b] hover:bg-white hover:text-[#0f172a] hover:translate-x-1{% endif %}" href="{% url 'presentations:list' %}">
+            <span class="material-symbols-outlined text-[20px] {% if nav_list == 'active' %}fill text-[#3b82f6]{% endif %}">slideshow</span>
+            <span class="text-sm">Sunumlar</span>
+        </a>
+        <a class="flex items-center gap-3 w-full px-4 py-3 rounded-lg transition-all duration-200 {% if nav_templates == 'active' %}font-semibold bg-[#eff6ff] text-[#1e40af] shadow-sm border border-[#bfdbfe]{% else %}font-medium text-[#64748b] hover:bg-white hover:text-[#0f172a] hover:translate-x-1{% endif %}" href="{% url 'template-gallery' %}">
+            <span class="material-symbols-outlined text-[20px] {% if nav_templates == 'active' %}fill text-[#3b82f6]{% endif %}">dashboard</span>
+            <span class="text-sm">Şablonlar</span>
+        </a>
+    </nav>
+
+    {% if user.is_authenticated %}
+    <div class="px-4 py-4 mt-auto border-t border-[#e2e8f0]">
+        <a href="{% url 'accounts:profile' %}" class="flex items-center gap-3 w-full px-4 py-3 rounded-lg transition-all duration-200 {% if nav_profile == 'active' %}bg-[#eff6ff] border border-[#bfdbfe]{% else %}hover:bg-white{% endif %}">
+            <div class="w-8 h-8 rounded-full bg-[#eff6ff] text-[#2563eb] font-bold text-sm flex items-center justify-center shrink-0">
+                {{ user.email|first|upper }}
+            </div>
+            <div class="flex-1 min-w-0">
+                <div class="text-sm font-medium text-[#0f172a] truncate">{{ user.get_full_name|default:user.username }}</div>
+                <div class="text-xs text-[#64748b] truncate">{{ user.email }}</div>
+            </div>
+        </a>
+    </div>
+    {% endif %}
+</aside>
