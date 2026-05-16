@@ -19,35 +19,33 @@
     <nav class="flex-1 overflow-y-auto sidebar-scroll px-4 space-y-1">
         {% active_url_name "dashboard" as nav_dashboard %}
         {% active_url_name "list" as nav_list %}
-        <a class="flex items-center gap-3 w-full px-4 py-3 rounded-lg transition-all duration-200 {% if nav_dashboard == 'active' or nav_list == 'active' %}font-semibold bg-[#eff6ff] text-[#1e40af] shadow-sm border border-[#bfdbfe]{% else %}font-medium text-[#64748b] hover:bg-white hover:text-[#0f172a] hover:translate-x-1{% endif %}" href="{% url 'presentations:dashboard' %}">
-            <span class="material-symbols-outlined text-[20px] {% if nav_dashboard == 'active' or nav_list == 'active' %}fill text-[#3b82f6]{% endif %}">folder</span>
-            <span class="text-sm">Projeler</span>
-        </a>
-        <a class="flex items-center gap-3 w-full px-4 py-3 rounded-lg transition-all duration-200 font-medium text-[#64748b] hover:bg-white hover:text-[#0f172a] hover:translate-x-1" href="{% url 'presentations:template-gallery' %}">
-            <span class="material-symbols-outlined text-[20px]">dashboard</span>
-            <span class="text-sm">Şablonlar</span>
-        </a>
-        <a class="flex items-center gap-3 w-full px-4 py-3 rounded-lg transition-all duration-200 font-medium text-[#64748b] hover:bg-white hover:text-[#0f172a] hover:translate-x-1" href="#">
-            <span class="material-symbols-outlined text-[20px]">group</span>
-            <span class="text-sm">Paylaşılanlar</span>
-        </a>
+        {% active_nav "/presentations/templates" as nav_templates %}
         {% active_nav "/accounts/profile" as nav_profile %}
-        <a class="flex items-center gap-3 w-full px-4 py-3 rounded-lg transition-all duration-200 {% if nav_profile == 'active' %}font-semibold bg-[#eff6ff] text-[#1e40af] shadow-sm border border-[#bfdbfe]{% else %}font-medium text-[#64748b] hover:bg-white hover:text-[#0f172a] hover:translate-x-1{% endif %}" href="{% url 'accounts:profile' %}">
-            <span class="material-symbols-outlined text-[20px] {% if nav_profile == 'active' %}fill text-[#3b82f6]{% endif %}">settings</span>
-            <span class="text-sm">Ayarlar</span>
+        <a class="flex items-center gap-3 w-full px-4 py-3 rounded-lg transition-all duration-200 {% if nav_dashboard == 'active' %}font-semibold bg-[#eff6ff] text-[#1e40af] shadow-sm border border-[#bfdbfe]{% else %}font-medium text-[#64748b] hover:bg-white hover:text-[#0f172a] hover:translate-x-1{% endif %}" href="{% url 'presentations:dashboard' %}">
+            <span class="material-symbols-outlined text-[20px] {% if nav_dashboard == 'active' %}fill text-[#3b82f6]{% endif %}">space_dashboard</span>
+            <span class="text-sm">Kontrol Paneli</span>
+        </a>
+        <a class="flex items-center gap-3 w-full px-4 py-3 rounded-lg transition-all duration-200 {% if nav_list == 'active' %}font-semibold bg-[#eff6ff] text-[#1e40af] shadow-sm border border-[#bfdbfe]{% else %}font-medium text-[#64748b] hover:bg-white hover:text-[#0f172a] hover:translate-x-1{% endif %}" href="{% url 'presentations:list' %}">
+            <span class="material-symbols-outlined text-[20px] {% if nav_list == 'active' %}fill text-[#3b82f6]{% endif %}">slideshow</span>
+            <span class="text-sm">Sunumlar</span>
+        </a>
+        <a class="flex items-center gap-3 w-full px-4 py-3 rounded-lg transition-all duration-200 {% if nav_templates == 'active' %}font-semibold bg-[#eff6ff] text-[#1e40af] shadow-sm border border-[#bfdbfe]{% else %}font-medium text-[#64748b] hover:bg-white hover:text-[#0f172a] hover:translate-x-1{% endif %}" href="{% url 'presentations:template-gallery' %}">
+            <span class="material-symbols-outlined text-[20px] {% if nav_templates == 'active' %}fill text-[#3b82f6]{% endif %}">dashboard</span>
+            <span class="text-sm">Şablonlar</span>
         </a>
     </nav>
 
-    <div class="px-4 py-4 mt-auto border-t border-[#e2e8f0] space-y-1">
-        <a href="#" class="flex items-center gap-3 w-full px-4 py-3 rounded-lg font-medium text-[#64748b] hover:bg-white transition-colors">
-            <span class="material-symbols-outlined text-[20px]">contact_support</span>
-            <span class="text-sm">Destek</span>
+    {% if user.is_authenticated %}
+    <div class="px-4 py-4 mt-auto border-t border-[#e2e8f0]">
+        <a href="{% url 'accounts:profile' %}" class="flex items-center gap-3 w-full px-4 py-3 rounded-lg transition-all duration-200 {% if nav_profile == 'active' %}bg-[#eff6ff] border border-[#bfdbfe]{% else %}hover:bg-white{% endif %}">
+            <div class="w-8 h-8 rounded-full bg-[#eff6ff] text-[#2563eb] font-bold text-sm flex items-center justify-center shrink-0">
+                {{ user.email|first|upper }}
+            </div>
+            <div class="flex-1 min-w-0">
+                <div class="text-sm font-medium text-[#0f172a] truncate">{{ user.get_full_name|default:user.username }}</div>
+                <div class="text-xs text-[#64748b] truncate">{{ user.email }}</div>
+            </div>
         </a>
-        {% if user.is_authenticated %}
-        <a href="{% url 'accounts:profile' %}" class="flex items-center gap-3 w-full px-4 py-3 rounded-lg font-medium text-[#64748b] hover:bg-white transition-colors">
-            <span class="material-symbols-outlined text-[20px]">person</span>
-            <span class="text-sm">Hesap</span>
-        </a>
-        {% endif %}
     </div>
+    {% endif %}
 </aside>
