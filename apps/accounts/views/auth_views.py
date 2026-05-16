@@ -10,7 +10,7 @@ from apps.accounts.services import auth_service
 
 def register_view(request: HttpRequest) -> HttpResponse:
     if request.user.is_authenticated:
-        return redirect("presentations:list")
+        return redirect("dashboard")
 
     if request.method == "POST":
         form = RegisterForm(request.POST)
@@ -22,7 +22,7 @@ def register_view(request: HttpRequest) -> HttpResponse:
             )
             login(request, result.data, backend="apps.accounts.backends.EmailAuthBackend")
             messages.success(request, "Hesabınız başarıyla oluşturuldu.")
-            return redirect("presentations:list")
+            return redirect("dashboard")
     else:
         form = RegisterForm()
 
@@ -31,7 +31,7 @@ def register_view(request: HttpRequest) -> HttpResponse:
 
 def login_view(request: HttpRequest) -> HttpResponse:
     if request.user.is_authenticated:
-        return redirect("presentations:list")
+        return redirect("dashboard")
 
     if request.method == "POST":
         form = LoginForm(request.POST)
@@ -43,7 +43,7 @@ def login_view(request: HttpRequest) -> HttpResponse:
             )
             if user is not None:
                 login(request, user)
-                next_url = request.GET.get("next", "presentations:list")
+                next_url = request.GET.get("next", "dashboard")
                 return redirect(next_url)
             else:
                 messages.error(request, "Geçersiz e-posta veya şifre.")
