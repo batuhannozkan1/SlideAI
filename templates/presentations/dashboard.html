@@ -36,7 +36,7 @@
         {% if recent_presentations %}
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {% for presentation in recent_presentations %}
-            <a href="{% url 'presentations:detail' pk=presentation.pk %}" class="bg-white rounded-xl border border-[#e2e8f0] overflow-hidden hover:shadow-md transition-all cursor-pointer group">
+            <a href="{% url 'presentations:editor' pk=presentation.pk %}" class="bg-white rounded-xl border border-[#e2e8f0] overflow-hidden hover:shadow-md transition-all cursor-pointer group">
                 <div class="aspect-video bg-[#f8fafc] group-hover:bg-[#eff6ff] transition-colors relative flex items-center justify-center">
                     <span class="material-symbols-outlined text-[#cbd5e1] group-hover:text-[#93c5fd] text-4xl transition-colors">slideshow</span>
                 </div>

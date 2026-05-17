@@ -5,7 +5,7 @@
 {% block content %}
 <div class="flex items-center justify-between mb-6">
     <h2 class="text-2xl font-semibold text-on-surface">Slaytlar</h2>
-    <a href="{% url 'presentations:detail' pk=presentation_pk %}" class="px-3 py-2 border border-outline-variant text-on-surface rounded-xl hover:bg-surface-container-low transition-colors text-sm font-medium flex items-center gap-1">
+    <a href="{% url 'presentations:editor' pk=presentation_pk %}" class="px-3 py-2 border border-outline-variant text-on-surface rounded-xl hover:bg-surface-container-low transition-colors text-sm font-medium flex items-center gap-1">
         <span class="material-symbols-outlined text-sm">arrow_back</span>
         Geri
     </a>

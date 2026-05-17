@@ -129,8 +129,8 @@
 
 /* Presentation fullscreen mode */
 .present-slide {
-    width: 100vw;
-    height: 100vh;
+    position: absolute;
+    inset: 0;
     display: none;
     flex-direction: column;
     padding: 8% 10%;
@@ -142,22 +142,28 @@
 .present-slide .slide-card__heading {
     font-family: var(--slide-font-heading);
     font-weight: 700;
-    font-size: clamp(1.5rem, 4vw, 3.5rem);
-    line-height: 1.2;
+    font-size: clamp(1.5rem, 4vw, 5rem);
+    line-height: 1.15;
     margin-bottom: 0.5em;
+    letter-spacing: -0.02em;
 }
 .present-slide .slide-card__body {
     font-family: var(--slide-font-body);
-    font-size: clamp(1rem, 2.5vw, 1.75rem);
+    font-size: clamp(1rem, 2.5vw, 1.875rem);
     line-height: 1.6;
     flex: 1;
-    opacity: 0.9;
+    opacity: 0.7;
+    font-weight: 300;
+    max-width: 48rem;
 }
 
 .present-slide--title {
     justify-content: center;
     align-items: center;
     text-align: center;
+}
+.present-slide--title .slide-card__body {
+    margin: 0 auto;
 }
 
 .present-slide--two_column .slide-card__body {
@@ -166,28 +172,8 @@
     gap: 2rem;
 }
 
-.present-controls {
-    position: fixed;
-    bottom: 1.5rem;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    background: rgba(0,0,0,0.5);
-    padding: 0.5rem 1rem;
-    border-radius: 999px;
-    color: #fff;
-    font-size: 0.85rem;
-    z-index: 10;
-    backdrop-filter: blur(8px);
-    opacity: 0;
-    transition: opacity 0.3s;
-}
-.present-wrapper:hover .present-controls { opacity: 1; }
-
 .present-progress {
-    position: fixed;
+    position: absolute;
     bottom: 0;
     left: 0;
     height: 3px;

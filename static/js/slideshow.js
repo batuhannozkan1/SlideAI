@@ -1,12 +1,14 @@
 document.addEventListener('DOMContentLoaded', function() {
-    const wrapper = document.querySelector('.present-wrapper');
+    var wrapper = document.getElementById('presentWrapper');
     if (!wrapper) return;
 
-    const slides = wrapper.querySelectorAll('.present-slide');
-    const counter = document.getElementById('slideCounter');
-    const progress = document.getElementById('slideProgress');
-    const exitBtn = document.getElementById('exitPresent');
-    let current = 0;
+    var slides = wrapper.querySelectorAll('.present-slide');
+    var counter = document.getElementById('slideCounter');
+    var progress = document.getElementById('slideProgress');
+    var exitBtn = document.getElementById('exitPresent');
+    var prevBtn = document.getElementById('prevSlide');
+    var nextBtn = document.getElementById('nextSlide');
+    var current = 0;
 
     function showSlide(index) {
         if (index < 0 || index >= slides.length) return;
@@ -23,22 +25,20 @@ document.addEventListener('DOMContentLoaded', function() {
     document.addEventListener('keydown', function(e) {
         if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); next(); }
         else if (e.key === 'ArrowLeft') { e.preventDefault(); prev(); }
-        else if (e.key === 'Escape') { window.history.back(); }
+        else if (e.key === 'Escape') {
+            if (exitBtn) window.location.href = exitBtn.href;
+            else window.history.back();
+        }
     });
 
     wrapper.addEventListener('click', function(e) {
-        if (e.target.closest('.present-controls')) return;
         var rect = wrapper.getBoundingClientRect();
         if (e.clientX > rect.width / 2) next();
         else prev();
     });
 
-    if (exitBtn) {
-        exitBtn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            window.history.back();
-        });
-    }
+    if (prevBtn) prevBtn.addEventListener('click', function(e) { e.stopPropagation(); prev(); });
+    if (nextBtn) nextBtn.addEventListener('click', function(e) { e.stopPropagation(); next(); });
 
     var touchStartX = 0;
     wrapper.addEventListener('touchstart', function(e) {

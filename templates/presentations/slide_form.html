@@ -9,6 +9,9 @@
     <div class="bg-white rounded-xl border border-outline-variant p-6 shadow-sm">
         <form method="post" class="space-y-4">
             {% csrf_token %}
+            {% if request.GET.next %}
+            <input type="hidden" name="next" value="{{ request.GET.next }}">
+            {% endif %}
             <div>
                 <label for="id_heading" class="block text-sm font-medium text-on-surface mb-1">Başlık</label>
                 <input type="text" name="heading" id="id_heading" value="{{ form.heading.value|default:"" }}"
@@ -34,7 +37,7 @@
                 <button type="submit" class="px-4 py-2 bg-[#eff6ff] text-[#2563eb] border border-[#bfdbfe] font-medium rounded-xl hover:bg-[#dbeafe] transition-colors text-sm">
                     Kaydet
                 </button>
-                <a href="{% url 'presentations:detail' pk=presentation_pk %}" class="px-4 py-2 border border-outline-variant text-on-surface rounded-xl hover:bg-surface-container-low transition-colors text-sm font-medium">
+                <a href="{% if request.GET.next %}{{ request.GET.next }}{% else %}{% url 'presentations:editor' pk=presentation_pk %}{% endif %}" class="px-4 py-2 border border-outline-variant text-on-surface rounded-xl hover:bg-surface-container-low transition-colors text-sm font-medium">
                     İptal
                 </a>
             </div>
