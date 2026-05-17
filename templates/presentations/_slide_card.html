@@ -9,7 +9,7 @@
         --slide-font-body: '{{ theme.font_body|default:'Inter' }}', sans-serif;
      ">
     <div class="slide-card__actions">
-        <a href="{% url 'presentations:slide-edit' presentation_pk=presentation.pk pk=slide.pk %}"
+        <a href="{% url 'presentations:editor' pk=presentation.pk %}"
            class="btn" title="Düzenle">
             <span class="material-symbols-outlined" style="font-size:14px">edit</span>
         </a>

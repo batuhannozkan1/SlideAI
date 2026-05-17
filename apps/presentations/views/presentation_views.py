@@ -2,15 +2,13 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
+from django.utils.http import url_has_allowed_host_and_scheme
 
 from apps.ai.dtos import GenerationRequest
 from apps.ai.services.generation_service import generate_presentation_slides
-from apps.presentations.dtos import CreatePresentationDTO, CreateSlideDTO, UpdatePresentationDTO
+from apps.presentations.dtos import CreatePresentationDTO, CreateSlideDTO
 from apps.presentations.forms.ai_forms import AIGenerateForm
-from apps.presentations.forms.presentation_forms import (
-    PresentationCreateForm,
-    PresentationEditForm,
-)
+from apps.presentations.forms.presentation_forms import PresentationCreateForm
 from apps.presentations.services import presentation_service, slide_service
 from apps.presentations.services import theme_service
 
@@ -50,7 +48,7 @@ def presentation_create(request: HttpRequest) -> HttpResponse:
             )
             result = presentation_service.create_presentation(dto)
             messages.success(request, "Sunum oluşturuldu.")
-            return redirect("presentations:detail", pk=result.data.pk)
+            return redirect("presentations:editor", pk=result.data.pk)
     else:
         form = PresentationCreateForm()
 
@@ -59,53 +57,7 @@ def presentation_create(request: HttpRequest) -> HttpResponse:
 
 @login_required
 def presentation_detail(request: HttpRequest, pk) -> HttpResponse:
-    result = presentation_service.get_presentation(
-        pk, requesting_user_id=request.user.id
-    )
-    themes_result = theme_service.list_active_themes()
-    return render(request, "presentations/detail.html", {
-        "presentation": result.data,
-        "themes": themes_result.data,
-    })
-
-
-@login_required
-def presentation_edit(request: HttpRequest, pk) -> HttpResponse:
-    current = presentation_service.get_presentation(
-        pk, requesting_user_id=request.user.id
-    )
-    presentation = current.data
-
-    if request.method == "POST":
-        form = PresentationEditForm(request.POST)
-        if form.is_valid():
-            theme = form.cleaned_data.get("theme")
-            dto = UpdatePresentationDTO(
-                title=form.cleaned_data.get("title"),
-                description=form.cleaned_data.get("description"),
-                is_public=form.cleaned_data.get("is_public"),
-                theme_id=theme.pk if theme else None,
-            )
-            presentation_service.update_presentation(
-                pk, dto, requesting_user_id=request.user.id
-            )
-            messages.success(request, "Sunum güncellendi.")
-            return redirect("presentations:detail", pk=pk)
-    else:
-        form = PresentationEditForm(
-            initial={
-                "title": presentation.title,
-                "description": presentation.description,
-                "is_public": presentation.is_public,
-                "theme": presentation.theme_id,
-            }
-        )
-
-    return render(
-        request,
-        "presentations/edit.html",
-        {"form": form, "presentation": presentation},
-    )
+    return redirect("presentations:editor", pk=pk)
 
 
 @login_required
@@ -174,11 +126,24 @@ def presentation_generate(request: HttpRequest) -> HttpResponse:
                 )
 
             messages.success(request, "Sunum başarıyla oluşturuldu!")
-            return redirect("presentations:detail", pk=presentation.pk)
+            return redirect("presentations:editor", pk=presentation.pk)
     else:
         form = AIGenerateForm()
 
     return render(request, "presentations/generate.html", {"form": form})
+
+
+@login_required
+def presentation_editor(request: HttpRequest, pk) -> HttpResponse:
+    result = presentation_service.get_presentation(
+        pk, requesting_user_id=request.user.id
+    )
+    themes_result = theme_service.list_active_themes()
+    return render(request, "presentations/editor.html", {
+        "presentation": result.data,
+        "slides": result.data.slides.all(),
+        "themes": themes_result.data,
+    })
 
 
 @login_required
@@ -195,7 +160,10 @@ def change_theme(request: HttpRequest, pk) -> HttpResponse:
         theme_id = request.POST.get("theme_id") or None
         theme_service.apply_theme(pk, theme_id, user_id=request.user.id)
         messages.success(request, "Tema değiştirildi.")
-    return redirect("presentations:detail", pk=pk)
+    next_url = request.POST.get("next") or request.GET.get("next")
+    if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}):
+        return redirect(next_url)
+    return redirect("presentations:editor", pk=pk)
 
 
 @login_required
@@ -205,5 +173,5 @@ def presentation_duplicate(request: HttpRequest, pk) -> HttpResponse:
             pk, requesting_user_id=request.user.id
         )
         messages.success(request, "Sunum kopyalandı.")
-        return redirect("presentations:detail", pk=result.data.pk)
-    return redirect("presentations:detail", pk=pk)
+        return redirect("presentations:editor", pk=result.data.pk)
+    return redirect("presentations:editor", pk=pk)

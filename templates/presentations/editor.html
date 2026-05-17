@@ -1,0 +1,418 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ presentation.title }} — Düzenleyici — SlideAI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/slides.css' %}">
+    <link rel="stylesheet" href="{% static 'css/app.css' %}">
+    <style>
+        .slide-thumbnails::-webkit-scrollbar { width: 4px; }
+        .slide-thumbnails::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    </style>
+</head>
+<body class="bg-[#f8f9ff] flex flex-col h-screen overflow-hidden font-[Inter,sans-serif]">
+
+    <header class="h-16 bg-white border-b border-[#e2e8f0] shrink-0 flex items-center justify-between px-4 z-20 shadow-sm relative">
+        <div class="flex items-center gap-4">
+            <a href="{% url 'presentations:list' %}" class="p-2 rounded-lg hover:bg-[#f1f5f9] text-[#64748b] hover:text-[#0f172a] transition-colors" title="Geri Dön">
+                <span class="material-symbols-outlined text-[20px]">arrow_back</span>
+            </a>
+            <div class="flex items-center gap-3">
+                <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-[#3b82f6] to-[#2563eb] shadow-sm">
+                    <svg width="20" height="20" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="4" y="12" width="18" height="12" rx="2.5" fill="#DBEAFE" />
+                        <rect x="8" y="8" width="18" height="12" rx="2.5" fill="#93C5FD" />
+                        <rect x="12" y="4" width="18" height="12" rx="2.5" fill="#FFFFFF" />
+                    </svg>
+                </div>
+                <div class="flex flex-col">
+                    <input type="text" value="{{ presentation.title }}" id="presentationTitle"
+                           class="font-bold text-[#0f172a] bg-transparent border-none p-0 focus:ring-0 w-64 focus:outline-none hover:bg-[#f8fafc] rounded px-1 -mx-1" />
+                    <span class="text-[10px] text-[#64748b]" id="saveStatus">Tüm değişiklikler kaydedildi</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="hidden md:flex items-center gap-2">
+            <button class="p-2 rounded-lg hover:bg-[#f1f5f9] text-[#64748b]" title="Geri Al">
+                <span class="material-symbols-outlined text-[20px]">undo</span>
+            </button>
+            <button class="p-2 rounded-lg hover:bg-[#f1f5f9] text-[#64748b]" title="İleri Al">
+                <span class="material-symbols-outlined text-[20px]">redo</span>
+            </button>
+            <div class="w-px h-6 bg-[#e2e8f0] mx-2"></div>
+            <button class="p-2 rounded-lg hover:bg-[#f1f5f9] text-[#64748b]" title="Metin">
+                <span class="material-symbols-outlined text-[20px]">text_format</span>
+            </button>
+            <button class="p-2 rounded-lg hover:bg-[#f1f5f9] text-[#64748b]" title="Görsel">
+                <span class="material-symbols-outlined text-[20px]">image</span>
+            </button>
+            <button class="p-2 rounded-lg hover:bg-[#f1f5f9] text-[#64748b]" title="Şekil">
+                <span class="material-symbols-outlined text-[20px]">shape_line</span>
+            </button>
+        </div>
+
+        <div class="flex items-center gap-3">
+            <button class="hidden md:flex items-center gap-2 px-4 py-2 border border-[#e2e8f0] rounded-lg text-sm font-medium hover:bg-[#f8fafc] transition-colors text-[#0f172a]">
+                <span class="material-symbols-outlined text-[18px]">group_add</span>
+                Paylaş
+            </button>
+            {% if slides %}
+            <a href="{% url 'presentations:present' pk=presentation.pk %}" class="flex items-center gap-2 px-4 py-2 bg-[#eff6ff] text-[#2563eb] border border-[#bfdbfe] rounded-lg text-sm font-medium hover:bg-[#dbeafe] transition-colors shadow-sm">
+                <span class="material-symbols-outlined text-[18px]">play_arrow</span>
+                Sun
+            </a>
+            {% endif %}
+            <div class="w-8 h-8 rounded-full bg-[#eef8ff] text-[#007bc2] font-bold text-sm flex items-center justify-center shrink-0 shadow-sm border border-[#bfdbfe] cursor-pointer ml-2">
+                {{ user.email|first|upper }}
+            </div>
+        </div>
+    </header>
+
+    <div class="flex flex-1 overflow-hidden">
+
+        <aside class="w-64 bg-[#f8fafc] border-r border-[#e2e8f0] flex flex-col shrink-0">
+            <div class="p-4 border-b border-[#e2e8f0] flex justify-between items-center bg-white">
+                <h3 class="font-semibold text-sm text-[#0f172a]">Slaytlar</h3>
+                <a href="{% url 'presentations:slide-create' presentation_pk=presentation.pk %}?next={% url 'presentations:editor' pk=presentation.pk %}" class="text-[#3b82f6] hover:bg-[#eff6ff] p-1 rounded-md transition-colors w-7 h-7 flex items-center justify-center" title="Yeni Slayt">
+                    <span class="material-symbols-outlined text-[18px]">add</span>
+                </a>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-4 space-y-4 slide-thumbnails" id="slideThumbnails">
+                {% for slide in slides %}
+                <div class="relative group cursor-pointer slide-thumb-wrapper" data-index="{{ forloop.counter0 }}" data-slide-id="{{ slide.pk }}">
+                    <div class="absolute -left-2 top-2 text-[10px] {% if forloop.first %}font-bold text-[#3b82f6]{% else %}font-medium text-[#c0cad8]{% endif %}">{{ forloop.counter }}</div>
+                    <div class="aspect-video bg-white rounded-lg p-2 shadow-sm relative overflow-hidden slide-thumb {% if forloop.first %}border-2 border-[#3b82f6] ring-4 ring-[#3b82f6]/10{% else %}border border-[#e2e8f0] group-hover:border-[#94a3b8] transition-colors{% endif %}"
+                         {% if presentation.theme %}
+                         style="background: {{ presentation.theme.primary_color }}; color: {{ presentation.theme.secondary_color }};"
+                         {% endif %}>
+                        <button class="absolute top-1 right-1 opacity-0 group-hover:opacity-100 p-1 rounded bg-white text-rose-500 hover:bg-rose-50 shadow-sm transition-all z-10 delete-slide-btn"
+                                data-slide-id="{{ slide.pk }}">
+                            <span class="material-symbols-outlined text-[14px]">delete</span>
+                        </button>
+                        <div class="w-full h-full flex flex-col {% if slide.layout == 'title' %}items-center justify-center{% endif %} pointer-events-none opacity-50">
+                            <div class="text-[7px] font-bold {% if slide.layout == 'title' %}text-center{% endif %} truncate">{{ slide.heading|truncatechars:40 }}</div>
+                            {% if slide.layout != 'title' %}
+                            <div class="text-[5px] mt-1 line-clamp-2">{{ slide.body|truncatechars:60 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="text-center text-sm text-[#94a3b8] py-8">Henüz slayt yok</div>
+                {% endfor %}
+            </div>
+
+            {% for slide in slides %}
+            <form id="deleteForm-{{ slide.pk }}" method="post" action="{% url 'presentations:slide-delete' presentation_pk=presentation.pk pk=slide.pk %}" class="hidden">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{% url 'presentations:editor' pk=presentation.pk %}">
+            </form>
+            {% endfor %}
+        </aside>
+
+        <main class="flex-1 bg-[#f1f5f9] flex flex-col relative">
+            <div class="flex-1 overflow-auto flex items-center justify-center p-8" id="canvasArea">
+                {% if slides %}
+                {% with slide=slides.0 %}
+                <div class="w-full max-w-4xl aspect-video bg-white shadow-md rounded border border-gray-100 relative group flex slide-canvas"
+                     id="slideCanvas"
+                     {% if presentation.theme %}
+                     style="
+                        background: {{ presentation.theme.primary_color }};
+                        color: {{ presentation.theme.secondary_color }};
+                        --slide-primary: {{ presentation.theme.primary_color }};
+                        --slide-secondary: {{ presentation.theme.secondary_color }};
+                        --slide-accent: {{ presentation.theme.accent_color }};
+                        --slide-font-heading: '{{ presentation.theme.font_heading }}', sans-serif;
+                        --slide-font-body: '{{ presentation.theme.font_body }}', sans-serif;
+                     "
+                     {% endif %}
+                     data-layout="{{ slide.layout }}">
+
+                    <div class="w-full h-full flex flex-col {% if slide.layout == 'title' %}items-center justify-center text-center{% endif %} px-12 md:px-24 py-8 md:py-16">
+                        <h1 class="text-4xl md:text-6xl font-bold mb-6 tracking-tight cursor-text hover:bg-white/10 rounded-md px-4 py-2 -ml-4 transition-colors slide-heading"
+                            contenteditable="true" data-field="heading">{{ slide.heading }}</h1>
+                        {% if slide.body %}
+                        <p class="text-xl md:text-2xl font-light cursor-text hover:bg-white/10 rounded-md px-4 py-2 -mx-4 transition-colors opacity-70 slide-body {% if slide.layout == 'two_column' %}grid grid-cols-2 gap-8{% endif %}"
+                           contenteditable="true" data-field="body">{{ slide.body|linebreaksbr }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div class="absolute bottom-4 left-4 text-sm opacity-40">SlideAI</div>
+                    <div class="absolute bottom-4 right-4 text-sm opacity-40 font-medium tracking-widest">01</div>
+                </div>
+                {% endwith %}
+                {% else %}
+                <div class="text-center">
+                    <div class="w-16 h-16 rounded-full bg-white flex items-center justify-center mx-auto mb-4 shadow-sm">
+                        <span class="material-symbols-outlined text-3xl text-[#94a3b8]">note_add</span>
+                    </div>
+                    <h3 class="text-lg font-semibold text-[#0f172a] mb-2">Henüz slayt yok</h3>
+                    <p class="text-[#64748b] mb-4">İlk slaytınızı ekleyerek başlayın.</p>
+                    <a href="{% url 'presentations:slide-create' presentation_pk=presentation.pk %}?next={% url 'presentations:editor' pk=presentation.pk %}" class="inline-flex items-center gap-2 px-4 py-2 bg-[#eff6ff] text-[#2563eb] border border-[#bfdbfe] rounded-lg text-sm font-medium hover:bg-[#dbeafe] transition-colors">
+                        <span class="material-symbols-outlined text-[18px]">add</span>
+                        Slayt Ekle
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="absolute bottom-6 right-6 bg-white rounded-full shadow-lg border border-[#e2e8f0] flex items-center px-2 py-1 gap-1">
+                <button class="w-8 h-8 flex items-center justify-center text-[#64748b] hover:bg-[#f1f5f9] rounded-full transition-colors" id="zoomOut">
+                    <span class="material-symbols-outlined text-[18px]">remove</span>
+                </button>
+                <span class="text-xs font-semibold text-[#0f172a] w-10 text-center" id="zoomLevel">85%</span>
+                <button class="w-8 h-8 flex items-center justify-center text-[#64748b] hover:bg-[#f1f5f9] rounded-full transition-colors" id="zoomIn">
+                    <span class="material-symbols-outlined text-[18px]">add</span>
+                </button>
+            </div>
+        </main>
+
+        <aside class="w-80 bg-white border-l border-[#e2e8f0] flex flex-col shrink-0 shadow-[-4px_0_15px_rgba(0,0,0,0.02)] relative z-10">
+            <div class="p-4 border-b border-[#e2e8f0] flex gap-4" id="rightTabs">
+                <button class="flex-1 pb-2 border-b-2 border-[#3b82f6] text-[#3b82f6] font-semibold text-sm tab-btn" data-tab="assistant">Asistan</button>
+                <button class="flex-1 pb-2 text-[#64748b] hover:text-[#0f172a] font-medium text-sm transition-colors tab-btn" data-tab="design">Tasarım</button>
+                <button class="flex-1 pb-2 text-[#64748b] hover:text-[#0f172a] font-medium text-sm transition-colors tab-btn" data-tab="transition">Geçiş</button>
+            </div>
+
+            <div class="flex-1 flex flex-col tab-panel" id="tab-assistant">
+                <div class="flex-1 overflow-y-auto p-4 space-y-4" id="chatMessages">
+                    <div class="flex gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-[#3b82f6] to-[#2563eb] flex items-center justify-center shrink-0 shadow-sm text-white">
+                            <span class="material-symbols-outlined text-[16px]">auto_awesome</span>
+                        </div>
+                        <div class="bg-[#f8fafc] border border-[#e2e8f0] p-3 rounded-2xl rounded-tl-none text-sm text-[#334155] shadow-sm">
+                            <p>Merhaba! Sunumunuz için harika bir taslak oluşturdum. Mevcut slaytta hangi detayları eklemek istersiniz?</p>
+                            <div class="mt-3 space-y-2">
+                                <button class="w-full text-left px-3 py-2 text-xs bg-white border border-[#bfdbfe] text-[#2563eb] rounded-lg hover:bg-[#eff6ff] transition-colors">&#10024; Başlığı daha çarpıcı yap</button>
+                                <button class="w-full text-left px-3 py-2 text-xs bg-white border border-[#bfdbfe] text-[#2563eb] rounded-lg hover:bg-[#eff6ff] transition-colors">&#10024; Alt başlığa istatistik ekle</button>
+                                <button class="w-full text-left px-3 py-2 text-xs bg-white border border-[#bfdbfe] text-[#2563eb] rounded-lg hover:bg-[#eff6ff] transition-colors">&#127912; Renk paletini değiştir</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-4 border-t border-[#e2e8f0] bg-[#f8fafc]">
+                    <div class="relative bg-white rounded-xl border border-[#cbd5e1] focus-within:border-[#3b82f6] focus-within:ring-2 focus-within:ring-[#3b82f6]/20 transition-all shadow-sm">
+                        <textarea rows="2" placeholder="Asistana bir şeyler yaz..." id="aiInput"
+                                  class="w-full bg-transparent border-none p-3 pr-12 resize-none text-sm focus:ring-0 placeholder:text-[#94a3b8]"></textarea>
+                        <button class="absolute bottom-2 right-2 w-8 h-8 bg-[#3b82f6] hover:bg-[#2563eb] text-white rounded-lg flex items-center justify-center transition-colors" id="aiSend">
+                            <span class="material-symbols-outlined text-[18px]">send</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-4 space-y-6 tab-panel hidden" id="tab-design">
+                {% if themes %}
+                <div>
+                    <h4 class="text-sm font-semibold text-[#0f172a] mb-3">Tema</h4>
+                    <div class="grid grid-cols-4 gap-2">
+                        {% for theme in themes %}
+                        <form method="post" action="{% url 'presentations:change-theme' pk=presentation.pk %}" class="inline">
+                            {% csrf_token %}
+                            <input type="hidden" name="theme_id" value="{{ theme.pk }}">
+                            <input type="hidden" name="next" value="{% url 'presentations:editor' pk=presentation.pk %}">
+                            <button type="submit"
+                                    class="w-full aspect-square rounded-lg border-2 transition-all hover:scale-105 {% if presentation.theme and presentation.theme.pk == theme.pk %}border-[#3b82f6] ring-2 ring-[#3b82f6]/20{% else %}border-[#e2e8f0] hover:border-[#94a3b8]{% endif %}"
+                                    style="background: linear-gradient(135deg, {{ theme.primary_color }} 50%, {{ theme.accent_color }} 50%);"
+                                    title="{{ theme.name }}"></button>
+                        </form>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <div>
+                    <h4 class="text-sm font-semibold text-[#0f172a] mb-3">Düzen</h4>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button class="p-3 border border-[#e2e8f0] rounded-lg hover:border-[#3b82f6] hover:bg-[#eff6ff] transition-all text-center">
+                            <span class="material-symbols-outlined text-[20px] text-[#64748b]">title</span>
+                            <div class="text-[10px] text-[#64748b] mt-1">Başlık</div>
+                        </button>
+                        <button class="p-3 border border-[#e2e8f0] rounded-lg hover:border-[#3b82f6] hover:bg-[#eff6ff] transition-all text-center">
+                            <span class="material-symbols-outlined text-[20px] text-[#64748b]">article</span>
+                            <div class="text-[10px] text-[#64748b] mt-1">İçerik</div>
+                        </button>
+                        <button class="p-3 border border-[#e2e8f0] rounded-lg hover:border-[#3b82f6] hover:bg-[#eff6ff] transition-all text-center">
+                            <span class="material-symbols-outlined text-[20px] text-[#64748b]">view_column_2</span>
+                            <div class="text-[10px] text-[#64748b] mt-1">İki Sütun</div>
+                        </button>
+                        <button class="p-3 border border-[#e2e8f0] rounded-lg hover:border-[#3b82f6] hover:bg-[#eff6ff] transition-all text-center">
+                            <span class="material-symbols-outlined text-[20px] text-[#64748b]">check_box_outline_blank</span>
+                            <div class="text-[10px] text-[#64748b] mt-1">Boş</div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-4 space-y-4 tab-panel hidden" id="tab-transition">
+                <h4 class="text-sm font-semibold text-[#0f172a] mb-3">Geçiş Efekti</h4>
+                <div class="space-y-2">
+                    <button class="w-full text-left px-4 py-3 border border-[#3b82f6] bg-[#eff6ff] rounded-lg text-sm text-[#2563eb] font-medium">Yok</button>
+                    <button class="w-full text-left px-4 py-3 border border-[#e2e8f0] rounded-lg text-sm text-[#64748b] hover:border-[#94a3b8] transition-colors">Kayma</button>
+                    <button class="w-full text-left px-4 py-3 border border-[#e2e8f0] rounded-lg text-sm text-[#64748b] hover:border-[#94a3b8] transition-colors">Solma</button>
+                    <button class="w-full text-left px-4 py-3 border border-[#e2e8f0] rounded-lg text-sm text-[#64748b] hover:border-[#94a3b8] transition-colors">Yakınlaştırma</button>
+                </div>
+            </div>
+        </aside>
+
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var presentationPk = "{{ presentation.pk }}";
+        var editorUrl = "{% url 'presentations:editor' pk=presentation.pk %}";
+        var slides = [
+            {% for slide in slides %}
+            {
+                id: "{{ slide.pk }}",
+                heading: "{{ slide.heading|escapejs }}",
+                body: "{{ slide.body|escapejs }}",
+                layout: "{{ slide.layout }}",
+                position: {{ slide.position }},
+                number: "{{ forloop.counter|stringformat:'02d' }}"
+            }{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ];
+        var currentIndex = 0;
+        var canvas = document.getElementById('slideCanvas');
+        var thumbnails = document.querySelectorAll('.slide-thumb-wrapper');
+
+        function selectSlide(index) {
+            if (index < 0 || index >= slides.length || !canvas) return;
+            currentIndex = index;
+
+            thumbnails.forEach(function(thumb, i) {
+                var card = thumb.querySelector('.slide-thumb');
+                var num = thumb.querySelector('div:first-child');
+                if (i === index) {
+                    card.className = 'aspect-video bg-white rounded-lg p-2 shadow-sm relative overflow-hidden slide-thumb border-2 border-[#3b82f6] ring-4 ring-[#3b82f6]/10';
+                    num.className = 'absolute -left-2 top-2 text-[10px] font-bold text-[#3b82f6]';
+                } else {
+                    card.className = 'aspect-video bg-white rounded-lg p-2 shadow-sm relative overflow-hidden slide-thumb border border-[#e2e8f0] group-hover:border-[#94a3b8] transition-colors';
+                    num.className = 'absolute -left-2 top-2 text-[10px] font-medium text-[#c0cad8]';
+                }
+            });
+
+            var slide = slides[index];
+            var isTitle = slide.layout === 'title';
+            var isTwoCol = slide.layout === 'two_column';
+
+            while (canvas.firstChild) canvas.removeChild(canvas.firstChild);
+
+            var wrapper = document.createElement('div');
+            wrapper.className = 'w-full h-full flex flex-col ' +
+                (isTitle ? 'items-center justify-center text-center' : '') +
+                ' px-12 md:px-24 py-8 md:py-16';
+
+            var h1 = document.createElement('h1');
+            h1.className = 'text-4xl md:text-6xl font-bold mb-6 tracking-tight cursor-text hover:bg-white/10 rounded-md px-4 py-2 -ml-4 transition-colors slide-heading';
+            h1.setAttribute('contenteditable', 'true');
+            h1.setAttribute('data-field', 'heading');
+            h1.textContent = slide.heading;
+            wrapper.appendChild(h1);
+
+            if (slide.body) {
+                var p = document.createElement('p');
+                p.className = 'text-xl md:text-2xl font-light cursor-text hover:bg-white/10 rounded-md px-4 py-2 -mx-4 transition-colors opacity-70 slide-body ' +
+                    (isTwoCol ? 'grid grid-cols-2 gap-8' : '');
+                p.setAttribute('contenteditable', 'true');
+                p.setAttribute('data-field', 'body');
+                var lines = slide.body.split('\\n');
+                lines.forEach(function(line, i) {
+                    p.appendChild(document.createTextNode(line));
+                    if (i < lines.length - 1) p.appendChild(document.createElement('br'));
+                });
+                wrapper.appendChild(p);
+            }
+
+            canvas.appendChild(wrapper);
+
+            var watermark = document.createElement('div');
+            watermark.className = 'absolute bottom-4 left-4 text-sm opacity-40';
+            watermark.textContent = 'SlideAI';
+            canvas.appendChild(watermark);
+
+            var number = document.createElement('div');
+            number.className = 'absolute bottom-4 right-4 text-sm opacity-40 font-medium tracking-widest';
+            number.textContent = slide.number;
+            canvas.appendChild(number);
+
+            canvas.dataset.layout = slide.layout;
+        }
+
+        thumbnails.forEach(function(thumb, i) {
+            thumb.addEventListener('click', function(e) {
+                if (e.target.closest('.delete-slide-btn')) return;
+                selectSlide(i);
+            });
+        });
+
+        document.querySelectorAll('.delete-slide-btn').forEach(function(btn) {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                if (confirm('Bu slaytı silmek istediğinize emin misiniz?')) {
+                    var form = document.getElementById('deleteForm-' + btn.dataset.slideId);
+                    if (form) form.submit();
+                }
+            });
+        });
+
+        // Tab switching
+        var tabBtns = document.querySelectorAll('.tab-btn');
+        var tabPanels = document.querySelectorAll('.tab-panel');
+        var tabMap = { assistant: 'tab-assistant', design: 'tab-design', transition: 'tab-transition' };
+
+        tabBtns.forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                tabBtns.forEach(function(b) {
+                    b.classList.remove('border-b-2', 'border-[#3b82f6]', 'text-[#3b82f6]', 'font-semibold');
+                    b.classList.add('text-[#64748b]', 'font-medium');
+                });
+                btn.classList.add('border-b-2', 'border-[#3b82f6]', 'text-[#3b82f6]', 'font-semibold');
+                btn.classList.remove('text-[#64748b]', 'font-medium');
+
+                tabPanels.forEach(function(p) { p.classList.add('hidden'); });
+                document.getElementById(tabMap[btn.dataset.tab]).classList.remove('hidden');
+            });
+        });
+
+        // Zoom
+        var zoomLevels = [50, 75, 85, 100, 125, 150];
+        var zoomIndex = 2;
+        var zoomDisplay = document.getElementById('zoomLevel');
+
+        function applyZoom() {
+            if (!canvas) return;
+            canvas.style.transform = 'scale(' + (zoomLevels[zoomIndex] / 100) + ')';
+            canvas.style.transformOrigin = 'center center';
+            zoomDisplay.textContent = zoomLevels[zoomIndex] + '%';
+        }
+
+        document.getElementById('zoomIn').addEventListener('click', function() {
+            if (zoomIndex < zoomLevels.length - 1) { zoomIndex++; applyZoom(); }
+        });
+        document.getElementById('zoomOut').addEventListener('click', function() {
+            if (zoomIndex > 0) { zoomIndex--; applyZoom(); }
+        });
+
+        applyZoom();
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (e.target.isContentEditable || e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+            if (e.key === 'ArrowUp') { e.preventDefault(); selectSlide(currentIndex - 1); }
+            if (e.key === 'ArrowDown') { e.preventDefault(); selectSlide(currentIndex + 1); }
+        });
+    });
+    </script>
+</body>
+</html>

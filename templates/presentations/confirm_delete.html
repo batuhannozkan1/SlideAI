@@ -22,7 +22,7 @@
             <button type="submit" class="px-4 py-2 bg-error text-white font-medium rounded-xl hover:bg-red-700 transition-colors text-sm">
                 Evet, Sil
             </button>
-            <a href="{% url 'presentations:detail' pk=presentation.pk %}" class="px-4 py-2 border border-outline-variant text-on-surface rounded-xl hover:bg-surface-container-low transition-colors text-sm font-medium">
+            <a href="{% url 'presentations:editor' pk=presentation.pk %}" class="px-4 py-2 border border-outline-variant text-on-surface rounded-xl hover:bg-surface-container-low transition-colors text-sm font-medium">
                 İptal
             </a>
         </form>

@@ -5,15 +5,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ presentation.title }} — Sunum</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/slides.css' %}">
+    <link rel="stylesheet" href="{% static 'css/app.css' %}">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { overflow: hidden; background: #000; cursor: none; }
-        body:hover { cursor: default; }
+        .slide-transition {
+            transition: opacity 0.5s ease-in-out, transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .controls-overlay {
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        body:hover .controls-overlay,
+        .controls-overlay:hover {
+            opacity: 1;
+        }
     </style>
 </head>
-<body>
-    <div class="present-wrapper"
+<body class="bg-black h-screen w-screen overflow-hidden text-white flex items-center justify-center relative font-[Inter,sans-serif]">
+
+    <div id="presentWrapper"
+         class="relative w-full max-w-[1920px] aspect-video max-h-screen shadow-2xl flex items-center justify-center slide-transition"
          {% if presentation.theme %}
          style="
             --slide-primary: {{ presentation.theme.primary_color }};
@@ -24,27 +38,51 @@
          "
          {% else %}
          style="
-            --slide-primary: #1a365d;
-            --slide-secondary: #ffffff;
-            --slide-accent: #3182ce;
+            --slide-primary: #ffffff;
+            --slide-secondary: #0f172a;
+            --slide-accent: #3b82f6;
             --slide-font-heading: 'Inter', sans-serif;
             --slide-font-body: 'Inter', sans-serif;
          "
          {% endif %}>
 
         {% for slide in presentation.slides.all %}
-        <section class="present-slide present-slide--{{ slide.layout }}">
+        <section class="present-slide present-slide--{{ slide.layout }}" data-index="{{ forloop.counter0 }}">
             <div class="slide-card__heading">{{ slide.heading }}</div>
             <div class="slide-card__body">{{ slide.body|linebreaksbr }}</div>
+            <div class="absolute bottom-8 left-12 text-[#94a3b8] text-xl font-medium tracking-wide">SlideAI</div>
+            <div class="absolute bottom-8 right-12 text-[#94a3b8] text-xl font-medium tracking-widest">{{ forloop.counter|stringformat:"02d" }}</div>
         </section>
         {% endfor %}
 
-        <div class="present-controls">
-            <button id="exitPresent" style="background:none;border:none;color:#fff;cursor:pointer;font-size:1rem;" title="Çıkış (Esc)">&#x2715;</button>
-            <span id="slideCounter">1 / {{ presentation.slides.all|length }}</span>
+        <div class="present-progress" id="slideProgress"></div>
+    </div>
+
+    <div class="controls-overlay fixed bottom-0 left-0 right-0 p-8 flex items-center justify-between bg-gradient-to-t from-black/80 to-transparent pb-10 z-20">
+        <a href="{% url 'presentations:editor' pk=presentation.pk %}" id="exitPresent" class="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-lg text-white text-sm font-medium transition-all">
+            <span class="material-symbols-outlined text-[20px]">fullscreen_exit</span>
+            Çıkış
+        </a>
+
+        <div class="flex items-center gap-4 bg-white/10 backdrop-blur-md p-2 rounded-2xl border border-white/5 shadow-2xl">
+            <button id="prevSlide" class="w-12 h-12 flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 rounded-full transition-all">
+                <span class="material-symbols-outlined text-[28px]">navigate_before</span>
+            </button>
+
+            <div class="flex items-center gap-2 px-4 border-x border-white/10">
+                <span id="slideCounter" class="text-white/80 font-medium px-2">1 / {{ presentation.slides.all|length }}</span>
+            </div>
+
+            <button id="nextSlide" class="w-12 h-12 flex items-center justify-center text-white hover:bg-white/10 rounded-full transition-all">
+                <span class="material-symbols-outlined text-[28px]">navigate_next</span>
+            </button>
         </div>
 
-        <div class="present-progress" id="slideProgress"></div>
+        <div class="flex items-center gap-3">
+            <button class="w-10 h-10 flex items-center justify-center bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-lg text-white transition-all" title="Konuşmacı Notları">
+                <span class="material-symbols-outlined text-[20px]">speaker_notes</span>
+            </button>
+        </div>
     </div>
 
     <script src="{% static 'js/slideshow.js' %}"></script>

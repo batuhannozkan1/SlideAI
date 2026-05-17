@@ -4,11 +4,19 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
+from django.utils.http import url_has_allowed_host_and_scheme
 
 from apps.ai.services.generation_service import regenerate_single_slide
 from apps.presentations.dtos import CreateSlideDTO, UpdateSlideDTO
 from apps.presentations.forms.slide_forms import SlideForm
 from apps.presentations.services import presentation_service, slide_service
+
+
+def _safe_redirect(request: HttpRequest, fallback_url: str):
+    next_url = request.POST.get("next") or request.GET.get("next")
+    if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}):
+        return redirect(next_url)
+    return redirect(fallback_url)
 
 
 @login_required
@@ -38,8 +46,8 @@ def slide_create(request: HttpRequest, presentation_pk) -> HttpResponse:
                 position=-1,
             )
             slide_service.create_slide(dto, requesting_user_id=request.user.id)
-            messages.success(request, "Slide created.")
-            return redirect("presentations:detail", pk=presentation_pk)
+            messages.success(request, "Slayt oluşturuldu.")
+            return _safe_redirect(request, f"/presentations/{presentation_pk}/")
     else:
         form = SlideForm()
 
@@ -52,6 +60,9 @@ def slide_create(request: HttpRequest, presentation_pk) -> HttpResponse:
 
 @login_required
 def slide_edit(request: HttpRequest, presentation_pk, pk) -> HttpResponse:
+    slide_result = slide_service.get_slide(pk, requesting_user_id=request.user.id)
+    slide = slide_result.data
+
     if request.method == "POST":
         form = SlideForm(request.POST)
         if form.is_valid():
@@ -62,10 +73,15 @@ def slide_edit(request: HttpRequest, presentation_pk, pk) -> HttpResponse:
                 layout=form.cleaned_data.get("layout"),
             )
             slide_service.update_slide(pk, dto, requesting_user_id=request.user.id)
-            messages.success(request, "Slide updated.")
-            return redirect("presentations:detail", pk=presentation_pk)
+            messages.success(request, "Slayt güncellendi.")
+            return _safe_redirect(request, f"/presentations/{presentation_pk}/")
     else:
-        form = SlideForm()
+        form = SlideForm(initial={
+            "heading": slide.heading,
+            "body": slide.body,
+            "notes": slide.notes,
+            "layout": slide.layout,
+        })
 
     return render(
         request,
@@ -78,8 +94,8 @@ def slide_edit(request: HttpRequest, presentation_pk, pk) -> HttpResponse:
 def slide_delete(request: HttpRequest, presentation_pk, pk) -> HttpResponse:
     if request.method == "POST":
         slide_service.delete_slide(pk, requesting_user_id=request.user.id)
-        messages.success(request, "Slide deleted.")
-    return redirect("presentations:detail", pk=presentation_pk)
+        messages.success(request, "Slayt silindi.")
+    return _safe_redirect(request, f"/presentations/{presentation_pk}/")
 
 
 @login_required
@@ -113,7 +129,7 @@ def slide_regenerate(request: HttpRequest, presentation_pk, pk) -> HttpResponse:
 
         if current_slide is None:
             messages.error(request, "Slayt bulunamadı.")
-            return redirect("presentations:detail", pk=presentation_pk)
+            return _safe_redirect(request, f"/presentations/{presentation_pk}/")
 
         result = regenerate_single_slide(
             topic=presentation.title,
@@ -135,4 +151,4 @@ def slide_regenerate(request: HttpRequest, presentation_pk, pk) -> HttpResponse:
         else:
             messages.error(request, "Slayt yeniden oluşturulamadı.")
 
-    return redirect("presentations:detail", pk=presentation_pk)
+    return _safe_redirect(request, f"/presentations/{presentation_pk}/")

@@ -9,6 +9,16 @@ from apps.presentations.dtos import CreateSlideDTO, UpdateSlideDTO
 from apps.presentations.repositories import presentation_repo, slide_repo
 
 
+def get_slide(slide_id: UUID, *, requesting_user_id: int) -> ServiceResult:
+    slide = slide_repo.get_by_id_or_raise(slide_id)
+    presentation = presentation_repo.get_by_id_or_raise(slide.presentation_id)
+
+    if presentation.owner_id != requesting_user_id:
+        raise PermissionDeniedError("You do not own this presentation.")
+
+    return ServiceResult.ok(data=slide)
+
+
 def create_slide(dto: CreateSlideDTO, *, requesting_user_id: int) -> ServiceResult:
     presentation = presentation_repo.get_by_id_or_raise(dto.presentation_id)
 

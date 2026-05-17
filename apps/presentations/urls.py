@@ -14,10 +14,10 @@ urlpatterns = [
     path("create/", presentation_views.presentation_create, name="create"),
     path("generate/", presentation_views.presentation_generate, name="generate"),
     path("<uuid:pk>/", presentation_views.presentation_detail, name="detail"),
+    path("<uuid:pk>/editor/", presentation_views.presentation_editor, name="editor"),
     path("<uuid:pk>/present/", presentation_views.presentation_present, name="present"),
     path("<uuid:pk>/theme/", presentation_views.change_theme, name="change-theme"),
     path("<uuid:pk>/duplicate/", presentation_views.presentation_duplicate, name="duplicate"),
-    path("<uuid:pk>/edit/", presentation_views.presentation_edit, name="edit"),
     path("<uuid:pk>/delete/", presentation_views.presentation_delete, name="delete"),
     # Slides
     path("<uuid:presentation_pk>/slides/", slide_views.slide_list, name="slide-list"),

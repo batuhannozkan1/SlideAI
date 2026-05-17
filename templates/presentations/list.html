@@ -27,7 +27,7 @@
 {% if result.items %}
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
     {% for presentation in result.items %}
-    <a href="{% url 'presentations:detail' pk=presentation.pk %}" class="bg-white rounded-xl border border-outline-variant shadow-sm hover:shadow-md hover:border-primary/30 transition-all overflow-hidden group">
+    <a href="{% url 'presentations:editor' pk=presentation.pk %}" class="bg-white rounded-xl border border-outline-variant shadow-sm hover:shadow-md hover:border-primary/30 transition-all overflow-hidden group">
         {% with first_slide=presentation.slides.first %}
         {% if first_slide and presentation.theme %}
         <div class="slide-mini-preview"
