@@ -128,7 +128,11 @@ def presentation_generate(request: HttpRequest) -> HttpResponse:
             messages.success(request, "Sunum başarıyla oluşturuldu!")
             return redirect("presentations:editor", pk=presentation.pk)
     else:
-        form = AIGenerateForm()
+        initial = {}
+        topic = request.GET.get("topic")
+        if topic:
+            initial["topic"] = topic
+        form = AIGenerateForm(initial=initial)
 
     return render(request, "presentations/generate.html", {"form": form})
 
