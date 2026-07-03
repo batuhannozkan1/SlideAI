@@ -1,0 +1,9 @@
+{% comment %}bar_chart: {bars: [{label, value(0-100), display}]}{% endcomment %}
+<div class="viz viz-bar">
+    {% for bar in d.bars %}
+    <div class="viz-bar-row">
+        <div class="viz-bar-head"><span class="l">{{ bar.label }}</span><span>{{ bar.display|default:bar.value }}</span></div>
+        <div class="viz-bar-track"><div class="viz-bar-fill" style="width: {{ bar.value|default:0 }}%"></div></div>
+    </div>
+    {% endfor %}
+</div>

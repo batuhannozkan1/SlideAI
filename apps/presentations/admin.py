@@ -13,8 +13,8 @@ class PresentationAdmin(admin.ModelAdmin):
 
 @admin.register(Slide)
 class SlideAdmin(admin.ModelAdmin):
-    list_display = ("heading", "presentation", "position", "layout")
-    list_filter = ("layout",)
+    list_display = ("heading", "presentation", "position", "slide_type")
+    list_filter = ("slide_type",)
     raw_id_fields = ("presentation",)
 
 

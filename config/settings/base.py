@@ -1,4 +1,5 @@
 import os
+from datetime import timedelta
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -19,15 +20,20 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    # Third-party
+    "rest_framework",
+    "corsheaders",
     # Local apps
     "apps.core",
     "apps.accounts",
     "apps.presentations",
     "apps.ai",
+    "apps.api",
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -111,3 +117,38 @@ AI_MODEL = os.environ.get("AI_MODEL", "")
 AI_BASE_URL = os.environ.get("AI_BASE_URL", "")
 AI_MAX_SLIDES = int(os.environ.get("AI_MAX_SLIDES", "20"))
 AI_DEFAULT_SLIDES = int(os.environ.get("AI_DEFAULT_SLIDES", "8"))
+
+# ---------------------------------------------------------------------------
+# REST API (mobile client) — additive; the SSR app keeps using session auth.
+# The API lives under /api/v1/ and is authenticated with JWT (access + refresh).
+# ---------------------------------------------------------------------------
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ),
+    "DEFAULT_PERMISSION_CLASSES": (
+        "rest_framework.permissions.IsAuthenticated",
+    ),
+    "EXCEPTION_HANDLER": "apps.api.exceptions.domain_exception_handler",
+    "DEFAULT_RENDERER_CLASSES": (
+        "rest_framework.renderers.JSONRenderer",
+    ),
+    "UNAUTHENTICATED_USER": None,
+}
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=14),
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": False,
+    "USER_ID_FIELD": "id",
+    "USER_ID_CLAIM": "user_id",
+}
+
+# Native mobile apps do not send an Origin header, so CORS only matters for a
+# Flutter Web build. Configure explicit origins via env in deployment.
+CORS_ALLOWED_ORIGINS = [
+    o.strip()
+    for o in os.environ.get("CORS_ALLOWED_ORIGINS", "").split(",")
+    if o.strip()
+]

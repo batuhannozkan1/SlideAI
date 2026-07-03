@@ -60,7 +60,6 @@
 
         <form method="post" id="generateForm" class="w-full">
             {% csrf_token %}
-            <input type="hidden" name="num_slides" id="numSlidesInput" value="{{ form.num_slides.value|default:10 }}">
             <input type="hidden" name="template" value="">
             <input type="hidden" name="additional_instructions" value="">
 
@@ -146,16 +145,22 @@
                         </div>
 
                         <div class="px-2 mt-4">
-                            <label class="block text-sm font-semibold text-[#334155] mb-3 -mx-2">Sunum Uzunluğu</label>
-                            <div class="relative py-2">
-                                <input type="range" min="1" max="4" value="2" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer" id="lengthSlider">
-                                <div class="flex justify-between text-xs text-[#64748b] mt-3 font-medium">
-                                    <span>Kısa (~5)</span>
-                                    <span>Standart (~10)</span>
-                                    <span>Detaylı (~15)</span>
-                                    <span>Uzun (20+)</span>
+                            <div class="flex items-center justify-between mb-3 -mx-2">
+                                <label class="block text-sm font-semibold text-[#334155]">Slayt Sayısı</label>
+                                <div class="flex items-center gap-2">
+                                    <input type="number" name="num_slides" id="numSlidesInput" min="3" max="40"
+                                           value="{{ form.num_slides.value|default:10 }}"
+                                           class="w-16 text-center px-2 py-1 border border-[#cbd5e1] rounded-lg text-sm font-semibold text-[#0f172a] focus:outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20">
+                                    <span class="text-xs text-[#64748b]">slayt</span>
                                 </div>
                             </div>
+                            <div class="relative py-2">
+                                <input type="range" min="3" max="40" value="10" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer" id="lengthSlider">
+                                <div class="flex justify-between text-xs text-[#64748b] mt-3 font-medium">
+                                    <span>3</span><span>10</span><span>20</span><span>30</span><span>40</span>
+                                </div>
+                            </div>
+                            <p class="text-[11px] text-[#94a3b8] mt-1">İstediğin sayıyı yazabilir ya da kaydırıcıyı kullanabilirsin. Bu bir hedeftir; yapay zeka tutarlılık için biraz farklı sayıda üretebilir.</p>
                         </div>
                     </div>
 
@@ -225,8 +230,6 @@
 
     <script>
     var currentStep = 1;
-    var slideCountMap = {1: 5, 2: 10, 3: 15, 4: 20};
-    var reverseMap = {5: 1, 10: 2, 15: 3, 20: 4};
 
     function goToStep(step) {
         if (currentStep === 1 && step > 1) {
@@ -270,11 +273,25 @@
 
     var slider = document.getElementById('lengthSlider');
     var numInput = document.getElementById('numSlidesInput');
-    if (slider) {
-        var initPos = reverseMap[parseInt(numInput.value)] || 2;
-        slider.value = initPos;
-        slider.addEventListener('input', function() {
-            numInput.value = slideCountMap[parseInt(this.value)];
+    function clampSlides(v) {
+        v = parseInt(v, 10);
+        if (isNaN(v)) v = 10;
+        if (v < 3) v = 3;
+        if (v > 40) v = 40;
+        return v;
+    }
+    if (slider && numInput) {
+        var initVal = clampSlides(numInput.value);
+        slider.value = initVal;
+        numInput.value = initVal;
+        slider.addEventListener('input', function() { numInput.value = this.value; });
+        numInput.addEventListener('input', function() {
+            var v = parseInt(this.value, 10);
+            if (!isNaN(v) && v >= 3 && v <= 40) slider.value = v;
+        });
+        numInput.addEventListener('blur', function() {
+            this.value = clampSlides(this.value);
+            slider.value = this.value;
         });
     }
 

@@ -1,0 +1,6 @@
+{% comment %}dashboard: {cells: [{value, label}]}{% endcomment %}
+<div class="viz viz-dashboard">
+    {% for cell in d.cells %}
+    <div class="viz-cell"><div class="v">{{ cell.value }}</div><div class="l">{{ cell.label }}</div></div>
+    {% endfor %}
+</div>

@@ -1,0 +1,11 @@
+{% comment %}status_card: {title, level(ok|warn|risk), badge, text, tags[]}{% endcomment %}
+<div class="viz viz-status lvl-{{ d.level|default:'neutral' }}">
+    <div class="head">
+        <span class="t">{{ d.title }}</span>
+        {% if d.badge %}<span class="badge badge-{{ d.level|default:'neutral' }}">{{ d.badge }}</span>{% endif %}
+    </div>
+    {% if d.text %}<div class="d">{{ d.text }}</div>{% endif %}
+    {% if d.tags %}
+    <div class="tags">{% for tag in d.tags %}<span>{{ tag }}</span>{% endfor %}</div>
+    {% endif %}
+</div>

@@ -1,6 +1,6 @@
 from django.db import models
 
-from apps.core.constants import SlideLayout
+from apps.core.constants import SlideType
 from apps.core.mixins import TimestampMixin, UUIDPrimaryKeyMixin
 
 
@@ -11,13 +11,15 @@ class Slide(UUIDPrimaryKeyMixin, TimestampMixin):
         related_name="slides",
     )
     heading = models.CharField(max_length=500, blank=True, default="")
-    body = models.TextField(blank=True, default="")
     notes = models.TextField(blank=True, default="")
-    layout = models.CharField(
-        max_length=50,
-        choices=[(layout.value, layout.name) for layout in SlideLayout],
-        default=SlideLayout.CONTENT,
+    slide_type = models.CharField(
+        max_length=20,
+        choices=[(t.value, t.name) for t in SlideType],
+        default=SlideType.SPLIT,
     )
+    # Structured content payload. Shape depends on slide_type
+    # (see apps/ai/prompts/slide_generation.py for the schema).
+    content = models.JSONField(default=dict, blank=True)
     position = models.PositiveIntegerField(default=0)
 
     class Meta:

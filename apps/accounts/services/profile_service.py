@@ -6,9 +6,11 @@ from apps.core.exceptions import NotFoundError
 
 
 def get_profile(user_id: int) -> ServiceResult:
+    # A profile is created lazily on first access so that users created outside
+    # the register flow (createsuperuser, admin) always have one.
     profile = profile_repo.get_by_user_id(user_id)
     if profile is None:
-        raise NotFoundError("UserProfile", user_id)
+        profile = profile_repo.create(user_id=user_id)
     return ServiceResult.ok(data=profile)
 
 

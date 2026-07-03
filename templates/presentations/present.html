@@ -6,59 +6,37 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ presentation.title }} — Sunum</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="{% static 'css/slides.css' %}">
     <link rel="stylesheet" href="{% static 'css/app.css' %}">
     <style>
-        .slide-transition {
-            transition: opacity 0.5s ease-in-out, transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .controls-overlay {
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-        body:hover .controls-overlay,
-        .controls-overlay:hover {
-            opacity: 1;
-        }
+        .controls-overlay { opacity: 0; transition: opacity 0.3s; }
+        body:hover .controls-overlay, .controls-overlay:hover { opacity: 1; }
     </style>
 </head>
-<body class="bg-black h-screen w-screen overflow-hidden text-white flex items-center justify-center relative font-[Inter,sans-serif]">
+<body class="bg-[#0b1120] h-screen w-screen overflow-hidden text-white flex items-center justify-center relative font-[Inter,sans-serif]">
 
     <div id="presentWrapper"
-         class="relative w-full max-w-[1920px] aspect-video max-h-screen shadow-2xl flex items-center justify-center slide-transition"
-         {% if presentation.theme %}
+         class="slide-stage relative w-full max-w-[1600px] max-h-screen shadow-2xl"
          style="
-            --slide-primary: {{ presentation.theme.primary_color }};
-            --slide-secondary: {{ presentation.theme.secondary_color }};
-            --slide-accent: {{ presentation.theme.accent_color }};
-            --slide-font-heading: '{{ presentation.theme.font_heading }}', sans-serif;
-            --slide-font-body: '{{ presentation.theme.font_body }}', sans-serif;
-         "
-         {% else %}
-         style="
-            --slide-primary: #ffffff;
-            --slide-secondary: #0f172a;
-            --slide-accent: #3b82f6;
-            --slide-font-heading: 'Inter', sans-serif;
-            --slide-font-body: 'Inter', sans-serif;
-         "
-         {% endif %}>
+            --slide-brand: {{ presentation.theme.primary_color|default:'#0d9488' }};
+            --slide-brand-dark: {{ presentation.theme.accent_color|default:'#115e59' }};
+            --slide-font-heading: '{{ presentation.theme.font_heading|default:'Inter' }}', sans-serif;
+            --slide-font-body: '{{ presentation.theme.font_body|default:'Inter' }}', sans-serif;
+         ">
 
         {% for slide in presentation.slides.all %}
-        <section class="present-slide present-slide--{{ slide.layout }}" data-index="{{ forloop.counter0 }}">
-            <div class="slide-card__heading">{{ slide.heading }}</div>
-            <div class="slide-card__body">{{ slide.body|linebreaksbr }}</div>
-            <div class="absolute bottom-8 left-12 text-[#94a3b8] text-xl font-medium tracking-wide">SlideAI</div>
-            <div class="absolute bottom-8 right-12 text-[#94a3b8] text-xl font-medium tracking-widest">{{ forloop.counter|stringformat:"02d" }}</div>
+        <section class="present-slide" data-index="{{ forloop.counter0 }}">
+            {% include "presentations/slides/_slide.html" with slide=slide page=forloop.counter total=presentation.slides.all|length brand=presentation.title %}
         </section>
         {% endfor %}
 
         <div class="present-progress" id="slideProgress"></div>
     </div>
 
-    <div class="controls-overlay fixed bottom-0 left-0 right-0 p-8 flex items-center justify-between bg-gradient-to-t from-black/80 to-transparent pb-10 z-20">
+    <div class="controls-overlay no-print fixed bottom-0 left-0 right-0 p-8 flex items-center justify-between bg-gradient-to-t from-black/80 to-transparent pb-10 z-20">
         <a href="{% url 'presentations:editor' pk=presentation.pk %}" id="exitPresent" class="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-lg text-white text-sm font-medium transition-all">
             <span class="material-symbols-outlined text-[20px]">fullscreen_exit</span>
             Çıkış
@@ -68,11 +46,9 @@
             <button id="prevSlide" class="w-12 h-12 flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 rounded-full transition-all">
                 <span class="material-symbols-outlined text-[28px]">navigate_before</span>
             </button>
-
             <div class="flex items-center gap-2 px-4 border-x border-white/10">
                 <span id="slideCounter" class="text-white/80 font-medium px-2">1 / {{ presentation.slides.all|length }}</span>
             </div>
-
             <button id="nextSlide" class="w-12 h-12 flex items-center justify-center text-white hover:bg-white/10 rounded-full transition-all">
                 <span class="material-symbols-outlined text-[28px]">navigate_next</span>
             </button>

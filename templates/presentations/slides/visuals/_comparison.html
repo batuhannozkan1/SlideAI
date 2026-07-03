@@ -1,0 +1,10 @@
+{% comment %}comparison: {bars: [{label, value(0-100), display}]} — relative heights{% endcomment %}
+<div class="viz viz-compare">
+    {% for bar in d.bars %}
+    <div class="col">
+        <div class="val">{{ bar.display|default:bar.value }}</div>
+        <div class="bar" style="height: {{ bar.value|default:0 }}%"></div>
+        <div class="lbl">{{ bar.label }}</div>
+    </div>
+    {% endfor %}
+</div>

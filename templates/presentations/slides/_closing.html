@@ -1,0 +1,19 @@
+{% load slide_extras %}{% comment %}Closing slide: dark pane (logo/brand) + light pane (title/desc/stats).{% endcomment %}
+<div class="pane-dark">
+    <i class="fas {{ c.icon|default:'fa-circle-check' }} big-icon"></i>
+    <div class="brand">{{ brand|default:"SlideAI" }}</div>
+</div>
+<div class="pane-light">
+    {% if c.eyebrow %}<span class="eyebrow {{ c.styles|el_style:'eyebrow' }}">{{ c.eyebrow }}</span>{% endif %}
+    <h1 class="cover-title {{ c.styles|el_style:'heading' }}">{{ heading }}</h1>
+    {% if c.subtitle %}<p class="cover-sub {{ c.styles|el_style:'subtitle' }}">{{ c.subtitle }}</p>{% endif %}
+    {% if c.description %}<p class="cover-desc {{ c.styles|el_style:'description' }}">{{ c.description }}</p>{% endif %}
+    {% if c.stats %}
+    <div class="closing-stats">
+        {% for s in c.stats %}
+        <div><div class="v">{{ s.value }}</div><div class="l">{{ s.label }}</div></div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% if c.footer %}<div class="cover-foot">{{ c.footer }}</div>{% endif %}
+</div>

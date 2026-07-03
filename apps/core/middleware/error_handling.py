@@ -26,6 +26,11 @@ class DomainExceptionMiddleware:
     def process_exception(
         self, request: HttpRequest, exception: Exception
     ) -> HttpResponse | None:
+        # API requests get JSON errors from DRF's exception handler, never an
+        # HTML error page. This guard keeps SSR error templates for the web app
+        # while letting domain exceptions on /api/ paths surface as JSON.
+        if request.path.startswith("/api/"):
+            return None
         for exc_class, status_code in EXCEPTION_STATUS_MAP.items():
             if isinstance(exception, exc_class):
                 template = f"errors/{status_code}.html"

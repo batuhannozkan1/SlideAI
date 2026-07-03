@@ -6,13 +6,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ presentation.title }} — Düzenleyici — SlideAI</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="{% static 'css/slides.css' %}">
     <link rel="stylesheet" href="{% static 'css/app.css' %}">
     <style>
         .slide-thumbnails::-webkit-scrollbar { width: 4px; }
         .slide-thumbnails::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .editor-slide { position: absolute; inset: 0; display: none; }
+        .editor-slide.active { display: block; }
+        .thumb-stage { pointer-events: none; }
+        .ai-chip { font-size: 11px; padding: 4px 10px; border: 1px solid #bfdbfe; color: #2563eb; background: #fff; border-radius: 9999px; transition: background .15s; cursor: pointer; }
+        .ai-chip:hover { background: #eff6ff; }
+        .chat-user { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; }
+        /* Click-to-select a text element on the editor canvas */
+        #slideStage .eyebrow, #slideStage .page-title, #slideStage .cover-title,
+        #slideStage .page-subtitle, #slideStage .cover-sub, #slideStage .cover-desc,
+        #slideStage .highlight-text, #slideStage .split-right,
+        #slideStage .brand, #slideStage .year, #slideStage .big-icon, #slideStage .cover-foot { cursor: pointer; }
+        .el-selected { outline: 2px dashed #3b82f6 !important; outline-offset: 3px; border-radius: 4px; }
     </style>
 </head>
 <body class="bg-[#f8f9ff] flex flex-col h-screen overflow-hidden font-[Inter,sans-serif]">
@@ -31,35 +44,12 @@
                 <div class="flex flex-col">
                     <input type="text" value="{{ presentation.title }}" id="presentationTitle"
                            class="font-bold text-[#0f172a] bg-transparent border-none p-0 focus:ring-0 w-64 focus:outline-none hover:bg-[#f8fafc] rounded px-1 -mx-1" />
-                    <span class="text-[10px] text-[#64748b]" id="saveStatus">Tüm değişiklikler kaydedildi</span>
+                    <span class="text-[10px] text-[#64748b]" id="saveStatus">Tasarım rehberi modunda</span>
                 </div>
             </div>
         </div>
 
-        <div class="hidden md:flex items-center gap-2">
-            <button class="p-2 rounded-lg hover:bg-[#f1f5f9] text-[#64748b]" title="Geri Al">
-                <span class="material-symbols-outlined text-[20px]">undo</span>
-            </button>
-            <button class="p-2 rounded-lg hover:bg-[#f1f5f9] text-[#64748b]" title="İleri Al">
-                <span class="material-symbols-outlined text-[20px]">redo</span>
-            </button>
-            <div class="w-px h-6 bg-[#e2e8f0] mx-2"></div>
-            <button class="p-2 rounded-lg hover:bg-[#f1f5f9] text-[#64748b]" title="Metin">
-                <span class="material-symbols-outlined text-[20px]">text_format</span>
-            </button>
-            <button class="p-2 rounded-lg hover:bg-[#f1f5f9] text-[#64748b]" title="Görsel">
-                <span class="material-symbols-outlined text-[20px]">image</span>
-            </button>
-            <button class="p-2 rounded-lg hover:bg-[#f1f5f9] text-[#64748b]" title="Şekil">
-                <span class="material-symbols-outlined text-[20px]">shape_line</span>
-            </button>
-        </div>
-
         <div class="flex items-center gap-3">
-            <button class="hidden md:flex items-center gap-2 px-4 py-2 border border-[#e2e8f0] rounded-lg text-sm font-medium hover:bg-[#f8fafc] transition-colors text-[#0f172a]">
-                <span class="material-symbols-outlined text-[18px]">group_add</span>
-                Paylaş
-            </button>
             {% if slides %}
             <a href="{% url 'presentations:present' pk=presentation.pk %}" class="flex items-center gap-2 px-4 py-2 bg-[#eff6ff] text-[#2563eb] border border-[#bfdbfe] rounded-lg text-sm font-medium hover:bg-[#dbeafe] transition-colors shadow-sm">
                 <span class="material-symbols-outlined text-[18px]">play_arrow</span>
@@ -72,7 +62,13 @@
         </div>
     </header>
 
-    <div class="flex flex-1 overflow-hidden">
+    <div class="flex flex-1 overflow-hidden"
+         style="
+            --slide-brand: {{ presentation.theme.primary_color|default:'#0d9488' }};
+            --slide-brand-dark: {{ presentation.theme.accent_color|default:'#115e59' }};
+            --slide-font-heading: '{{ presentation.theme.font_heading|default:'Inter' }}', sans-serif;
+            --slide-font-body: '{{ presentation.theme.font_body|default:'Inter' }}', sans-serif;
+         ">
 
         <aside class="w-64 bg-[#f8fafc] border-r border-[#e2e8f0] flex flex-col shrink-0">
             <div class="p-4 border-b border-[#e2e8f0] flex justify-between items-center bg-white">
@@ -84,21 +80,15 @@
 
             <div class="flex-1 overflow-y-auto p-4 space-y-4 slide-thumbnails" id="slideThumbnails">
                 {% for slide in slides %}
-                <div class="relative group cursor-pointer slide-thumb-wrapper" data-index="{{ forloop.counter0 }}" data-slide-id="{{ slide.pk }}">
-                    <div class="absolute -left-2 top-2 text-[10px] {% if forloop.first %}font-bold text-[#3b82f6]{% else %}font-medium text-[#c0cad8]{% endif %}">{{ forloop.counter }}</div>
-                    <div class="aspect-video bg-white rounded-lg p-2 shadow-sm relative overflow-hidden slide-thumb {% if forloop.first %}border-2 border-[#3b82f6] ring-4 ring-[#3b82f6]/10{% else %}border border-[#e2e8f0] group-hover:border-[#94a3b8] transition-colors{% endif %}"
-                         {% if presentation.theme %}
-                         style="background: {{ presentation.theme.primary_color }}; color: {{ presentation.theme.secondary_color }};"
-                         {% endif %}>
-                        <button class="absolute top-1 right-1 opacity-0 group-hover:opacity-100 p-1 rounded bg-white text-rose-500 hover:bg-rose-50 shadow-sm transition-all z-10 delete-slide-btn"
+                <div class="relative group cursor-pointer slide-thumb-wrapper" draggable="true" data-index="{{ forloop.counter0 }}" data-slide-id="{{ slide.pk }}">
+                    <div class="absolute -left-2 top-2 text-[10px] z-10 {% if forloop.first %}font-bold text-[#3b82f6]{% else %}font-medium text-[#c0cad8]{% endif %} thumb-num">{{ forloop.counter }}</div>
+                    <div class="rounded-lg overflow-hidden shadow-sm relative slide-thumb {% if forloop.first %}ring-2 ring-[#3b82f6]{% else %}ring-1 ring-[#e2e8f0] group-hover:ring-[#94a3b8] transition-all{% endif %}">
+                        <button class="absolute top-1 right-1 opacity-0 group-hover:opacity-100 p-1 rounded bg-white text-rose-500 hover:bg-rose-50 shadow-sm transition-all z-20 delete-slide-btn"
                                 data-slide-id="{{ slide.pk }}">
                             <span class="material-symbols-outlined text-[14px]">delete</span>
                         </button>
-                        <div class="w-full h-full flex flex-col {% if slide.layout == 'title' %}items-center justify-center{% endif %} pointer-events-none opacity-50">
-                            <div class="text-[7px] font-bold {% if slide.layout == 'title' %}text-center{% endif %} truncate">{{ slide.heading|truncatechars:40 }}</div>
-                            {% if slide.layout != 'title' %}
-                            <div class="text-[5px] mt-1 line-clamp-2">{{ slide.body|truncatechars:60 }}</div>
-                            {% endif %}
+                        <div class="slide-stage thumb-stage">
+                            {% include "presentations/slides/_slide.html" with slide=slide page=forloop.counter total=slides|length brand=presentation.title %}
                         </div>
                     </div>
                 </div>
@@ -118,35 +108,15 @@
         <main class="flex-1 bg-[#f1f5f9] flex flex-col relative">
             <div class="flex-1 overflow-auto flex items-center justify-center p-8" id="canvasArea">
                 {% if slides %}
-                {% with slide=slides.0 %}
-                <div class="w-full max-w-4xl aspect-video bg-white shadow-md rounded border border-gray-100 relative group flex slide-canvas"
-                     id="slideCanvas"
-                     {% if presentation.theme %}
-                     style="
-                        background: {{ presentation.theme.primary_color }};
-                        color: {{ presentation.theme.secondary_color }};
-                        --slide-primary: {{ presentation.theme.primary_color }};
-                        --slide-secondary: {{ presentation.theme.secondary_color }};
-                        --slide-accent: {{ presentation.theme.accent_color }};
-                        --slide-font-heading: '{{ presentation.theme.font_heading }}', sans-serif;
-                        --slide-font-body: '{{ presentation.theme.font_body }}', sans-serif;
-                     "
-                     {% endif %}
-                     data-layout="{{ slide.layout }}">
-
-                    <div class="w-full h-full flex flex-col {% if slide.layout == 'title' %}items-center justify-center text-center{% endif %} px-12 md:px-24 py-8 md:py-16">
-                        <h1 class="text-4xl md:text-6xl font-bold mb-6 tracking-tight cursor-text hover:bg-white/10 rounded-md px-4 py-2 -ml-4 transition-colors slide-heading"
-                            contenteditable="true" data-field="heading">{{ slide.heading }}</h1>
-                        {% if slide.body %}
-                        <p class="text-xl md:text-2xl font-light cursor-text hover:bg-white/10 rounded-md px-4 py-2 -mx-4 transition-colors opacity-70 slide-body {% if slide.layout == 'two_column' %}grid grid-cols-2 gap-8{% endif %}"
-                           contenteditable="true" data-field="body">{{ slide.body|linebreaksbr }}</p>
-                        {% endif %}
+                <div class="w-full max-w-5xl" id="canvasScaler">
+                    <div class="slide-stage shadow-xl rounded-[28px]" id="slideStage">
+                        {% for slide in slides %}
+                        <div class="editor-slide {% if forloop.first %}active{% endif %}" data-index="{{ forloop.counter0 }}">
+                            {% include "presentations/slides/_slide.html" with slide=slide page=forloop.counter total=slides|length brand=presentation.title %}
+                        </div>
+                        {% endfor %}
                     </div>
-
-                    <div class="absolute bottom-4 left-4 text-sm opacity-40">SlideAI</div>
-                    <div class="absolute bottom-4 right-4 text-sm opacity-40 font-medium tracking-widest">01</div>
                 </div>
-                {% endwith %}
                 {% else %}
                 <div class="text-center">
                     <div class="w-16 h-16 rounded-full bg-white flex items-center justify-center mx-auto mb-4 shadow-sm">
@@ -166,7 +136,7 @@
                 <button class="w-8 h-8 flex items-center justify-center text-[#64748b] hover:bg-[#f1f5f9] rounded-full transition-colors" id="zoomOut">
                     <span class="material-symbols-outlined text-[18px]">remove</span>
                 </button>
-                <span class="text-xs font-semibold text-[#0f172a] w-10 text-center" id="zoomLevel">85%</span>
+                <span class="text-xs font-semibold text-[#0f172a] w-10 text-center" id="zoomLevel">100%</span>
                 <button class="w-8 h-8 flex items-center justify-center text-[#64748b] hover:bg-[#f1f5f9] rounded-full transition-colors" id="zoomIn">
                     <span class="material-symbols-outlined text-[18px]">add</span>
                 </button>
@@ -174,44 +144,57 @@
         </main>
 
         <aside class="w-80 bg-white border-l border-[#e2e8f0] flex flex-col shrink-0 shadow-[-4px_0_15px_rgba(0,0,0,0.02)] relative z-10">
-            <div class="p-4 border-b border-[#e2e8f0] flex gap-4" id="rightTabs">
-                <button class="flex-1 pb-2 border-b-2 border-[#3b82f6] text-[#3b82f6] font-semibold text-sm tab-btn" data-tab="assistant">Asistan</button>
-                <button class="flex-1 pb-2 text-[#64748b] hover:text-[#0f172a] font-medium text-sm transition-colors tab-btn" data-tab="design">Tasarım</button>
-                <button class="flex-1 pb-2 text-[#64748b] hover:text-[#0f172a] font-medium text-sm transition-colors tab-btn" data-tab="transition">Geçiş</button>
+            <div class="p-4 border-b border-[#e2e8f0] flex gap-3 text-sm" id="rightTabs">
+                <button class="flex-1 pb-2 border-b-2 border-[#3b82f6] text-[#3b82f6] font-semibold tab-btn" data-tab="assistant">Asistan</button>
+                <button class="flex-1 pb-2 text-[#64748b] hover:text-[#0f172a] font-medium transition-colors tab-btn" data-tab="content">İçerik</button>
+                <button class="flex-1 pb-2 text-[#64748b] hover:text-[#0f172a] font-medium transition-colors tab-btn" data-tab="design">Tasarım</button>
             </div>
 
-            <div class="flex-1 flex flex-col tab-panel" id="tab-assistant">
-                <div class="flex-1 overflow-y-auto p-4 space-y-4" id="chatMessages">
-                    <div class="flex gap-3">
-                        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-[#3b82f6] to-[#2563eb] flex items-center justify-center shrink-0 shadow-sm text-white">
+            <div class="flex-1 flex flex-col min-h-0 tab-panel" id="tab-assistant">
+                <div class="flex-1 overflow-y-auto p-4 space-y-3" id="chatMessages">
+                    <div class="flex gap-2">
+                        <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-[#3b82f6] to-[#2563eb] text-white flex items-center justify-center shrink-0">
                             <span class="material-symbols-outlined text-[16px]">auto_awesome</span>
                         </div>
-                        <div class="bg-[#f8fafc] border border-[#e2e8f0] p-3 rounded-2xl rounded-tl-none text-sm text-[#334155] shadow-sm">
-                            <p>Merhaba! Sunumunuz için harika bir taslak oluşturdum. Mevcut slaytta hangi detayları eklemek istersiniz?</p>
-                            <div class="mt-3 space-y-2">
-                                <button class="w-full text-left px-3 py-2 text-xs bg-white border border-[#bfdbfe] text-[#2563eb] rounded-lg hover:bg-[#eff6ff] transition-colors">&#10024; Başlığı daha çarpıcı yap</button>
-                                <button class="w-full text-left px-3 py-2 text-xs bg-white border border-[#bfdbfe] text-[#2563eb] rounded-lg hover:bg-[#eff6ff] transition-colors">&#10024; Alt başlığa istatistik ekle</button>
-                                <button class="w-full text-left px-3 py-2 text-xs bg-white border border-[#bfdbfe] text-[#2563eb] rounded-lg hover:bg-[#eff6ff] transition-colors">&#127912; Renk paletini değiştir</button>
-                            </div>
+                        <div class="bg-[#f8fafc] border border-[#e2e8f0] rounded-2xl rounded-tl-none p-3 text-sm text-[#334155]">
+                            Merhaba! Seçili slaytı birlikte düzenleyelim. Ne yapmamı istersin?
                         </div>
                     </div>
+                    <div id="quickActions" class="flex flex-wrap gap-2 pl-9">
+                        <button type="button" class="ai-chip" data-instruction="Seçili slaytın başlığını daha çarpıcı yap">Başlığı çarpıcılaştır</button>
+                        <button type="button" class="ai-chip" data-instruction="Seçili slayttaki maddeleri kısalt ve sadeleştir">Maddeleri sadeleştir</button>
+                        <button type="button" class="ai-chip" data-instruction="Sunumun sonuna konuya uygun bir özet slaytı ekle">Sona özet slaytı ekle</button>
+                        <button type="button" class="ai-chip" data-instruction="Seçili slaytı sil">Bu slaytı sil</button>
+                        <button type="button" class="ai-chip" data-instruction="Temayı laciverte (Finans) çevir">Temayı değiştir</button>
+                        <button type="button" class="ai-chip" data-instruction="Seçili slayt için en uygun görseli seç ve verisini doldur">Görsel öner</button>
+                    </div>
+                    <div id="chatLog" class="space-y-3"></div>
                 </div>
-
-                <div class="p-4 border-t border-[#e2e8f0] bg-[#f8fafc]">
-                    <div class="relative bg-white rounded-xl border border-[#cbd5e1] focus-within:border-[#3b82f6] focus-within:ring-2 focus-within:ring-[#3b82f6]/20 transition-all shadow-sm">
-                        <textarea rows="2" placeholder="Asistana bir şeyler yaz..." id="aiInput"
-                                  class="w-full bg-transparent border-none p-3 pr-12 resize-none text-sm focus:ring-0 placeholder:text-[#94a3b8]"></textarea>
-                        <button class="absolute bottom-2 right-2 w-8 h-8 bg-[#3b82f6] hover:bg-[#2563eb] text-white rounded-lg flex items-center justify-center transition-colors" id="aiSend">
+                <div class="p-3 border-t border-[#e2e8f0] bg-[#f8fafc]">
+                    <div id="focusInfo" class="hidden mb-2 flex items-center gap-2 text-[11px] text-[#2563eb] bg-[#eff6ff] border border-[#bfdbfe] rounded-lg px-2 py-1">
+                        <span class="material-symbols-outlined text-[14px]">ads_click</span>
+                        <span>Seçili: <strong data-el></strong></span>
+                        <button type="button" id="focusClear" class="ml-auto text-[#64748b] hover:text-[#0f172a]">temizle</button>
+                    </div>
+                    <div class="relative bg-white rounded-xl border border-[#cbd5e1] focus-within:border-[#3b82f6] focus-within:ring-2 focus-within:ring-[#3b82f6]/20 transition-all">
+                        <textarea id="aiInput" rows="2" placeholder="Slaytta bir yazıya tıkla, sonra 'büyült / kırmızı yap' de..." class="w-full bg-transparent border-none p-3 pr-11 resize-none text-sm focus:ring-0 focus:outline-none placeholder:text-[#94a3b8]"></textarea>
+                        <button id="aiSend" type="button" class="absolute bottom-2 right-2 w-8 h-8 bg-[#3b82f6] hover:bg-[#2563eb] text-white rounded-lg flex items-center justify-center transition-colors disabled:opacity-50">
                             <span class="material-symbols-outlined text-[18px]">send</span>
                         </button>
                     </div>
                 </div>
             </div>
 
+            <div class="flex-1 overflow-y-auto tab-panel hidden" id="tab-content">
+                <div id="contentForm" class="p-4 space-y-4">
+                    <p class="text-sm text-[#94a3b8] text-center py-8">Düzenlemek için bir slayt seçin.</p>
+                </div>
+            </div>
+
             <div class="flex-1 overflow-y-auto p-4 space-y-6 tab-panel hidden" id="tab-design">
                 {% if themes %}
                 <div>
-                    <h4 class="text-sm font-semibold text-[#0f172a] mb-3">Tema</h4>
+                    <h4 class="text-sm font-semibold text-[#0f172a] mb-3">Tema (marka rengi)</h4>
                     <div class="grid grid-cols-4 gap-2">
                         {% for theme in themes %}
                         <form method="post" action="{% url 'presentations:change-theme' pk=presentation.pk %}" class="inline">
@@ -227,190 +210,28 @@
                     </div>
                 </div>
                 {% endif %}
-
-                <div>
-                    <h4 class="text-sm font-semibold text-[#0f172a] mb-3">Düzen</h4>
-                    <div class="grid grid-cols-2 gap-2">
-                        <button class="p-3 border border-[#e2e8f0] rounded-lg hover:border-[#3b82f6] hover:bg-[#eff6ff] transition-all text-center">
-                            <span class="material-symbols-outlined text-[20px] text-[#64748b]">title</span>
-                            <div class="text-[10px] text-[#64748b] mt-1">Başlık</div>
-                        </button>
-                        <button class="p-3 border border-[#e2e8f0] rounded-lg hover:border-[#3b82f6] hover:bg-[#eff6ff] transition-all text-center">
-                            <span class="material-symbols-outlined text-[20px] text-[#64748b]">article</span>
-                            <div class="text-[10px] text-[#64748b] mt-1">İçerik</div>
-                        </button>
-                        <button class="p-3 border border-[#e2e8f0] rounded-lg hover:border-[#3b82f6] hover:bg-[#eff6ff] transition-all text-center">
-                            <span class="material-symbols-outlined text-[20px] text-[#64748b]">view_column_2</span>
-                            <div class="text-[10px] text-[#64748b] mt-1">İki Sütun</div>
-                        </button>
-                        <button class="p-3 border border-[#e2e8f0] rounded-lg hover:border-[#3b82f6] hover:bg-[#eff6ff] transition-all text-center">
-                            <span class="material-symbols-outlined text-[20px] text-[#64748b]">check_box_outline_blank</span>
-                            <div class="text-[10px] text-[#64748b] mt-1">Boş</div>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="flex-1 overflow-y-auto p-4 space-y-4 tab-panel hidden" id="tab-transition">
-                <h4 class="text-sm font-semibold text-[#0f172a] mb-3">Geçiş Efekti</h4>
-                <div class="space-y-2">
-                    <button class="w-full text-left px-4 py-3 border border-[#3b82f6] bg-[#eff6ff] rounded-lg text-sm text-[#2563eb] font-medium">Yok</button>
-                    <button class="w-full text-left px-4 py-3 border border-[#e2e8f0] rounded-lg text-sm text-[#64748b] hover:border-[#94a3b8] transition-colors">Kayma</button>
-                    <button class="w-full text-left px-4 py-3 border border-[#e2e8f0] rounded-lg text-sm text-[#64748b] hover:border-[#94a3b8] transition-colors">Solma</button>
-                    <button class="w-full text-left px-4 py-3 border border-[#e2e8f0] rounded-lg text-sm text-[#64748b] hover:border-[#94a3b8] transition-colors">Yakınlaştırma</button>
+                <div class="text-xs text-[#94a3b8] leading-relaxed border-t border-[#e2e8f0] pt-4">
+                    Marka rengini seç. Slayt içeriğini soldaki slaytı seçip "İçerik" sekmesinden düzenleyebilirsin.
                 </div>
             </div>
         </aside>
 
     </div>
 
+    {{ slides_json|json_script:"slidesData" }}
     <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        var presentationPk = "{{ presentation.pk }}";
-        var editorUrl = "{% url 'presentations:editor' pk=presentation.pk %}";
-        var slides = [
-            {% for slide in slides %}
-            {
-                id: "{{ slide.pk }}",
-                heading: "{{ slide.heading|escapejs }}",
-                body: "{{ slide.body|escapejs }}",
-                layout: "{{ slide.layout }}",
-                position: {{ slide.position }},
-                number: "{{ forloop.counter|stringformat:'02d' }}"
-            }{% if not forloop.last %},{% endif %}
-            {% endfor %}
-        ];
-        var currentIndex = 0;
-        var canvas = document.getElementById('slideCanvas');
-        var thumbnails = document.querySelectorAll('.slide-thumb-wrapper');
-
-        function selectSlide(index) {
-            if (index < 0 || index >= slides.length || !canvas) return;
-            currentIndex = index;
-
-            thumbnails.forEach(function(thumb, i) {
-                var card = thumb.querySelector('.slide-thumb');
-                var num = thumb.querySelector('div:first-child');
-                if (i === index) {
-                    card.className = 'aspect-video bg-white rounded-lg p-2 shadow-sm relative overflow-hidden slide-thumb border-2 border-[#3b82f6] ring-4 ring-[#3b82f6]/10';
-                    num.className = 'absolute -left-2 top-2 text-[10px] font-bold text-[#3b82f6]';
-                } else {
-                    card.className = 'aspect-video bg-white rounded-lg p-2 shadow-sm relative overflow-hidden slide-thumb border border-[#e2e8f0] group-hover:border-[#94a3b8] transition-colors';
-                    num.className = 'absolute -left-2 top-2 text-[10px] font-medium text-[#c0cad8]';
-                }
-            });
-
-            var slide = slides[index];
-            var isTitle = slide.layout === 'title';
-            var isTwoCol = slide.layout === 'two_column';
-
-            while (canvas.firstChild) canvas.removeChild(canvas.firstChild);
-
-            var wrapper = document.createElement('div');
-            wrapper.className = 'w-full h-full flex flex-col ' +
-                (isTitle ? 'items-center justify-center text-center' : '') +
-                ' px-12 md:px-24 py-8 md:py-16';
-
-            var h1 = document.createElement('h1');
-            h1.className = 'text-4xl md:text-6xl font-bold mb-6 tracking-tight cursor-text hover:bg-white/10 rounded-md px-4 py-2 -ml-4 transition-colors slide-heading';
-            h1.setAttribute('contenteditable', 'true');
-            h1.setAttribute('data-field', 'heading');
-            h1.textContent = slide.heading;
-            wrapper.appendChild(h1);
-
-            if (slide.body) {
-                var p = document.createElement('p');
-                p.className = 'text-xl md:text-2xl font-light cursor-text hover:bg-white/10 rounded-md px-4 py-2 -mx-4 transition-colors opacity-70 slide-body ' +
-                    (isTwoCol ? 'grid grid-cols-2 gap-8' : '');
-                p.setAttribute('contenteditable', 'true');
-                p.setAttribute('data-field', 'body');
-                var lines = slide.body.split('\\n');
-                lines.forEach(function(line, i) {
-                    p.appendChild(document.createTextNode(line));
-                    if (i < lines.length - 1) p.appendChild(document.createElement('br'));
-                });
-                wrapper.appendChild(p);
-            }
-
-            canvas.appendChild(wrapper);
-
-            var watermark = document.createElement('div');
-            watermark.className = 'absolute bottom-4 left-4 text-sm opacity-40';
-            watermark.textContent = 'SlideAI';
-            canvas.appendChild(watermark);
-
-            var number = document.createElement('div');
-            number.className = 'absolute bottom-4 right-4 text-sm opacity-40 font-medium tracking-widest';
-            number.textContent = slide.number;
-            canvas.appendChild(number);
-
-            canvas.dataset.layout = slide.layout;
-        }
-
-        thumbnails.forEach(function(thumb, i) {
-            thumb.addEventListener('click', function(e) {
-                if (e.target.closest('.delete-slide-btn')) return;
-                selectSlide(i);
-            });
-        });
-
-        document.querySelectorAll('.delete-slide-btn').forEach(function(btn) {
-            btn.addEventListener('click', function(e) {
-                e.stopPropagation();
-                if (confirm('Bu slaytı silmek istediğinize emin misiniz?')) {
-                    var form = document.getElementById('deleteForm-' + btn.dataset.slideId);
-                    if (form) form.submit();
-                }
-            });
-        });
-
-        // Tab switching
-        var tabBtns = document.querySelectorAll('.tab-btn');
-        var tabPanels = document.querySelectorAll('.tab-panel');
-        var tabMap = { assistant: 'tab-assistant', design: 'tab-design', transition: 'tab-transition' };
-
-        tabBtns.forEach(function(btn) {
-            btn.addEventListener('click', function() {
-                tabBtns.forEach(function(b) {
-                    b.classList.remove('border-b-2', 'border-[#3b82f6]', 'text-[#3b82f6]', 'font-semibold');
-                    b.classList.add('text-[#64748b]', 'font-medium');
-                });
-                btn.classList.add('border-b-2', 'border-[#3b82f6]', 'text-[#3b82f6]', 'font-semibold');
-                btn.classList.remove('text-[#64748b]', 'font-medium');
-
-                tabPanels.forEach(function(p) { p.classList.add('hidden'); });
-                document.getElementById(tabMap[btn.dataset.tab]).classList.remove('hidden');
-            });
-        });
-
-        // Zoom
-        var zoomLevels = [50, 75, 85, 100, 125, 150];
-        var zoomIndex = 2;
-        var zoomDisplay = document.getElementById('zoomLevel');
-
-        function applyZoom() {
-            if (!canvas) return;
-            canvas.style.transform = 'scale(' + (zoomLevels[zoomIndex] / 100) + ')';
-            canvas.style.transformOrigin = 'center center';
-            zoomDisplay.textContent = zoomLevels[zoomIndex] + '%';
-        }
-
-        document.getElementById('zoomIn').addEventListener('click', function() {
-            if (zoomIndex < zoomLevels.length - 1) { zoomIndex++; applyZoom(); }
-        });
-        document.getElementById('zoomOut').addEventListener('click', function() {
-            if (zoomIndex > 0) { zoomIndex--; applyZoom(); }
-        });
-
-        applyZoom();
-
-        // Keyboard navigation
-        document.addEventListener('keydown', function(e) {
-            if (e.target.isContentEditable || e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
-            if (e.key === 'ArrowUp') { e.preventDefault(); selectSlide(currentIndex - 1); }
-            if (e.key === 'ArrowDown') { e.preventDefault(); selectSlide(currentIndex + 1); }
-        });
-    });
+    window.EDITOR_CFG = {
+        csrf: "{{ csrf_token }}",
+        updateUrlTpl: "{% url 'presentations:slide-update' presentation_pk=presentation.pk pk='00000000-0000-0000-0000-000000000000' %}",
+        aiEditUrlTpl: "{% url 'presentations:slide-ai-edit' presentation_pk=presentation.pk pk='00000000-0000-0000-0000-000000000000' %}",
+        regenerateUrlTpl: "{% url 'presentations:slide-regenerate' presentation_pk=presentation.pk pk='00000000-0000-0000-0000-000000000000' %}",
+        reorderUrl: "{% url 'presentations:slide-reorder' presentation_pk=presentation.pk %}",
+        titleUrl: "{% url 'presentations:update-title' pk=presentation.pk %}",
+        agentUrl: "{% url 'presentations:agent' pk=presentation.pk %}",
+        editorUrl: "{% url 'presentations:editor' pk=presentation.pk %}",
+        placeholderId: "00000000-0000-0000-0000-000000000000"
+    };
     </script>
+    <script src="{% static 'js/slide-editor.js' %}?v=11"></script>
 </body>
 </html>

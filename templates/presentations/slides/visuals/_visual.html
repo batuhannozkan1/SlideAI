@@ -1,0 +1,16 @@
+{% comment %}
+Right-panel visual dispatcher. Explicit type dispatch (not dynamic include) so an
+unknown/invalid type from the AI degrades gracefully instead of crashing.
+Context: visual = {type, data}
+{% endcomment %}
+{% with t=visual.type d=visual.data %}
+{% if t == "dashboard" %}{% include "presentations/slides/visuals/_dashboard.html" with d=d %}
+{% elif t == "bar_chart" %}{% include "presentations/slides/visuals/_bar_chart.html" with d=d %}
+{% elif t == "card_list" %}{% include "presentations/slides/visuals/_card_list.html" with d=d %}
+{% elif t == "timeline" %}{% include "presentations/slides/visuals/_timeline.html" with d=d %}
+{% elif t == "donut" %}{% include "presentations/slides/visuals/_donut.html" with d=d %}
+{% elif t == "comparison" %}{% include "presentations/slides/visuals/_comparison.html" with d=d %}
+{% elif t == "icon_grid" %}{% include "presentations/slides/visuals/_icon_grid.html" with d=d %}
+{% elif t == "status_card" %}{% include "presentations/slides/visuals/_status_card.html" with d=d %}
+{% endif %}
+{% endwith %}
