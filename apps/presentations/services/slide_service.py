@@ -32,9 +32,9 @@ def create_slide(dto: CreateSlideDTO, *, requesting_user_id: int) -> ServiceResu
     slide = slide_repo.create(
         presentation_id=dto.presentation_id,
         heading=dto.heading,
-        body=dto.body,
         notes=dto.notes,
-        layout=dto.layout,
+        slide_type=dto.slide_type,
+        content=dto.content,
         position=position,
     )
 
@@ -59,9 +59,9 @@ def update_slide(
         k: v
         for k, v in {
             "heading": dto.heading,
-            "body": dto.body,
             "notes": dto.notes,
-            "layout": dto.layout,
+            "slide_type": dto.slide_type,
+            "content": dto.content,
         }.items()
         if v is not None
     }

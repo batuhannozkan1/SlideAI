@@ -3,73 +3,78 @@ from django.core.management.base import BaseCommand
 from apps.presentations.models import SlideTemplate, Theme
 
 
+# Brand-driven themes (design-guide system). primary_color = brand color,
+# accent_color = brand-dark (used for gradients / eyebrow-dark / stat values).
+# secondary_color kept for the pptx exporter (text color on a solid brand bg).
 THEMES = [
     {
-        "name": "Corporate Blue",
-        "primary_color": "#1a365d",
+        "name": "Teknoloji (Teal)",
+        "primary_color": "#0d9488",
         "secondary_color": "#ffffff",
-        "accent_color": "#3182ce",
+        "accent_color": "#115e59",
         "font_heading": "Inter",
         "font_body": "Inter",
     },
     {
-        "name": "Dark Mode",
-        "primary_color": "#1a1a2e",
-        "secondary_color": "#e0e0e0",
-        "accent_color": "#e94560",
-        "font_heading": "Space Grotesk",
+        "name": "Akademik (Mavi)",
+        "primary_color": "#2563eb",
+        "secondary_color": "#ffffff",
+        "accent_color": "#1e40af",
+        "font_heading": "Inter",
         "font_body": "Inter",
     },
     {
-        "name": "Minimalist",
-        "primary_color": "#ffffff",
-        "secondary_color": "#333333",
-        "accent_color": "#667eea",
-        "font_heading": "Helvetica",
-        "font_body": "Georgia",
+        "name": "Sağlık (Yeşil)",
+        "primary_color": "#16a34a",
+        "secondary_color": "#ffffff",
+        "accent_color": "#166534",
+        "font_heading": "Inter",
+        "font_body": "Inter",
     },
     {
-        "name": "Nature Green",
-        "primary_color": "#1b4332",
-        "secondary_color": "#f0fff4",
-        "accent_color": "#38a169",
-        "font_heading": "Merriweather",
-        "font_body": "Source Sans Pro",
+        "name": "Finans (Lacivert)",
+        "primary_color": "#1e3a8a",
+        "secondary_color": "#ffffff",
+        "accent_color": "#172554",
+        "font_heading": "Inter",
+        "font_body": "Inter",
     },
     {
-        "name": "Warm Sunset",
-        "primary_color": "#7c2d12",
-        "secondary_color": "#fff7ed",
-        "accent_color": "#f97316",
-        "font_heading": "Playfair Display",
-        "font_body": "Lato",
+        "name": "Enerji (Turuncu)",
+        "primary_color": "#ea580c",
+        "secondary_color": "#ffffff",
+        "accent_color": "#9a3412",
+        "font_heading": "Inter",
+        "font_body": "Inter",
     },
     {
-        "name": "Tech Neon",
-        "primary_color": "#0f172a",
-        "secondary_color": "#e2e8f0",
-        "accent_color": "#06b6d4",
-        "font_heading": "JetBrains Mono",
+        "name": "Yaratıcı (Mor)",
+        "primary_color": "#7c3aed",
+        "secondary_color": "#ffffff",
+        "accent_color": "#5b21b6",
+        "font_heading": "Inter",
         "font_body": "Inter",
     },
 ]
 
+# Template structures guide the AI. "type" maps to Slide.slide_type
+# (cover / split / closing); "hint" describes the slide's content.
 TEMPLATES = [
     {
         "name": "Pitch Deck",
         "description": "Startup veya proje sunumu için ideal yapı",
         "structure": {
             "slides": [
-                {"role": "title", "layout": "title", "hint": "Company/project name and tagline"},
-                {"role": "problem", "layout": "content", "hint": "The problem being solved"},
-                {"role": "solution", "layout": "content", "hint": "Your unique solution"},
-                {"role": "features", "layout": "two_column", "hint": "Key features or benefits"},
-                {"role": "market", "layout": "content", "hint": "Market opportunity and size"},
-                {"role": "business_model", "layout": "content", "hint": "How you make money"},
-                {"role": "traction", "layout": "content", "hint": "Progress and milestones"},
-                {"role": "team", "layout": "two_column", "hint": "Core team members"},
-                {"role": "roadmap", "layout": "content", "hint": "Future plans and timeline"},
-                {"role": "closing", "layout": "title", "hint": "Call to action and contact info"},
+                {"role": "title", "type": "cover", "hint": "Company/project name and tagline"},
+                {"role": "problem", "type": "split", "hint": "The problem being solved"},
+                {"role": "solution", "type": "split", "hint": "Your unique solution"},
+                {"role": "features", "type": "split", "hint": "Key features or benefits"},
+                {"role": "market", "type": "split", "hint": "Market opportunity and size"},
+                {"role": "business_model", "type": "split", "hint": "How you make money"},
+                {"role": "traction", "type": "split", "hint": "Progress and milestones"},
+                {"role": "team", "type": "split", "hint": "Core team members"},
+                {"role": "roadmap", "type": "split", "hint": "Future plans and timeline"},
+                {"role": "closing", "type": "closing", "hint": "Call to action and contact info"},
             ]
         },
     },
@@ -78,14 +83,14 @@ TEMPLATES = [
         "description": "Ders veya eğitim sunumu yapısı",
         "structure": {
             "slides": [
-                {"role": "title", "layout": "title", "hint": "Lesson title and learning objectives"},
-                {"role": "overview", "layout": "content", "hint": "What we'll cover today"},
-                {"role": "concept_1", "layout": "content", "hint": "First key concept explanation"},
-                {"role": "concept_2", "layout": "content", "hint": "Second key concept explanation"},
-                {"role": "example", "layout": "two_column", "hint": "Practical example or case study"},
-                {"role": "practice", "layout": "content", "hint": "Exercise or discussion question"},
-                {"role": "summary", "layout": "content", "hint": "Key takeaways recap"},
-                {"role": "closing", "layout": "title", "hint": "Questions and further reading"},
+                {"role": "title", "type": "cover", "hint": "Lesson title and learning objectives"},
+                {"role": "overview", "type": "split", "hint": "What we'll cover today"},
+                {"role": "concept_1", "type": "split", "hint": "First key concept explanation"},
+                {"role": "concept_2", "type": "split", "hint": "Second key concept explanation"},
+                {"role": "example", "type": "split", "hint": "Practical example or case study"},
+                {"role": "practice", "type": "split", "hint": "Exercise or discussion question"},
+                {"role": "summary", "type": "split", "hint": "Key takeaways recap"},
+                {"role": "closing", "type": "closing", "hint": "Questions and further reading"},
             ]
         },
     },
@@ -94,14 +99,14 @@ TEMPLATES = [
         "description": "Iş raporu ve analiz sunumu",
         "structure": {
             "slides": [
-                {"role": "title", "layout": "title", "hint": "Report title and date"},
-                {"role": "executive_summary", "layout": "content", "hint": "High-level overview and key findings"},
-                {"role": "data_analysis", "layout": "two_column", "hint": "Data and metrics breakdown"},
-                {"role": "insights", "layout": "content", "hint": "Key insights from the data"},
-                {"role": "challenges", "layout": "content", "hint": "Current challenges and risks"},
-                {"role": "recommendations", "layout": "content", "hint": "Recommended actions"},
-                {"role": "timeline", "layout": "content", "hint": "Implementation timeline"},
-                {"role": "closing", "layout": "title", "hint": "Summary and next steps"},
+                {"role": "title", "type": "cover", "hint": "Report title and date"},
+                {"role": "executive_summary", "type": "split", "hint": "High-level overview and key findings"},
+                {"role": "data_analysis", "type": "split", "hint": "Data and metrics breakdown"},
+                {"role": "insights", "type": "split", "hint": "Key insights from the data"},
+                {"role": "challenges", "type": "split", "hint": "Current challenges and risks"},
+                {"role": "recommendations", "type": "split", "hint": "Recommended actions"},
+                {"role": "timeline", "type": "split", "hint": "Implementation timeline"},
+                {"role": "closing", "type": "closing", "hint": "Summary and next steps"},
             ]
         },
     },
@@ -110,13 +115,13 @@ TEMPLATES = [
         "description": "Proje teklifi sunumu",
         "structure": {
             "slides": [
-                {"role": "title", "layout": "title", "hint": "Project name and subtitle"},
-                {"role": "background", "layout": "content", "hint": "Context and motivation"},
-                {"role": "objectives", "layout": "content", "hint": "Project goals and success criteria"},
-                {"role": "approach", "layout": "two_column", "hint": "Methodology and approach"},
-                {"role": "deliverables", "layout": "content", "hint": "Expected outcomes and deliverables"},
-                {"role": "budget", "layout": "content", "hint": "Budget and resource requirements"},
-                {"role": "closing", "layout": "title", "hint": "Call to action"},
+                {"role": "title", "type": "cover", "hint": "Project name and subtitle"},
+                {"role": "background", "type": "split", "hint": "Context and motivation"},
+                {"role": "objectives", "type": "split", "hint": "Project goals and success criteria"},
+                {"role": "approach", "type": "split", "hint": "Methodology and approach"},
+                {"role": "deliverables", "type": "split", "hint": "Expected outcomes and deliverables"},
+                {"role": "budget", "type": "split", "hint": "Budget and resource requirements"},
+                {"role": "closing", "type": "closing", "hint": "Call to action"},
             ]
         },
     },
@@ -127,26 +132,20 @@ class Command(BaseCommand):
     help = "Seed themes and slide templates"
 
     def handle(self, *args, **options):
-        theme_count = 0
         for theme_data in THEMES:
-            _, created = Theme.objects.get_or_create(
+            Theme.objects.update_or_create(
                 name=theme_data["name"],
                 defaults=theme_data,
             )
-            if created:
-                theme_count += 1
 
-        template_count = 0
         for tmpl_data in TEMPLATES:
-            _, created = SlideTemplate.objects.get_or_create(
+            SlideTemplate.objects.update_or_create(
                 name=tmpl_data["name"],
                 defaults=tmpl_data,
             )
-            if created:
-                template_count += 1
 
         self.stdout.write(
             self.style.SUCCESS(
-                f"Seeded {theme_count} themes, {template_count} templates"
+                f"Seeded {len(THEMES)} themes, {len(TEMPLATES)} templates"
             )
         )

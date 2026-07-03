@@ -183,9 +183,9 @@ def duplicate_presentation(
         slide_repo.create(
             presentation_id=copy.pk,
             heading=slide.heading,
-            body=slide.body,
             notes=slide.notes,
-            layout=slide.layout,
+            slide_type=slide.slide_type,
+            content=slide.content,
             position=slide.position,
         )
 

@@ -1,0 +1,9 @@
+{% comment %}icon_grid: {cells: [{icon, label, done}]}{% endcomment %}
+<div class="viz viz-icongrid">
+    {% for cell in d.cells %}
+    <div class="viz-ig-cell {% if cell.done %}done{% endif %}">
+        <div class="ic"><i class="fas {{ cell.icon|default:'fa-circle' }}"></i></div>
+        <div class="lbl">{{ cell.label }}</div>
+    </div>
+    {% endfor %}
+</div>

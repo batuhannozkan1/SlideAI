@@ -12,4 +12,6 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("accounts/", include("apps.accounts.urls", namespace="accounts")),
     path("presentations/", include("apps.presentations.urls", namespace="presentations")),
+    # REST API for the mobile client (additive; SSR routes above are untouched).
+    path("api/v1/", include("apps.api.urls")),
 ]

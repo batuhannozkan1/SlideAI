@@ -1,0 +1,13 @@
+{% load slide_extras %}{% comment %}Cover slide: dark pane (icon + year/brand) + light pane (title/subtitle/desc).{% endcomment %}
+<div class="pane-light">
+    {% if c.eyebrow %}<span class="eyebrow {{ c.styles|el_style:'eyebrow' }}">{{ c.eyebrow }}</span>{% endif %}
+    <h1 class="cover-title {{ c.styles|el_style:'heading' }}">{{ heading }}</h1>
+    {% if c.subtitle %}<p class="cover-sub {{ c.styles|el_style:'subtitle' }}">{{ c.subtitle }}</p>{% endif %}
+    {% if c.description %}<p class="cover-desc {{ c.styles|el_style:'description' }}">{{ c.description }}</p>{% endif %}
+    <div class="cover-foot"><i class="fas fa-lock"></i> {{ c.footer|default:brand|default:"SlideAI" }}</div>
+</div>
+<div class="pane-dark">
+    <i class="fas {{ c.icon|default:'fa-presentation-screen' }} big-icon"></i>
+    {% if c.date %}<div class="year">{{ c.date }}</div>{% endif %}
+    <div class="brand">{{ brand|default:"SlideAI" }}</div>
+</div>

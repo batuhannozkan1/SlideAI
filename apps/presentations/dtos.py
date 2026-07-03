@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from typing import Any
 from uuid import UUID
 
 
@@ -24,18 +25,18 @@ class UpdatePresentationDTO:
 class CreateSlideDTO:
     presentation_id: UUID
     heading: str
-    body: str
     position: int
     notes: str = ""
-    layout: str = "content"
+    slide_type: str = "split"
+    content: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass(frozen=True)
 class UpdateSlideDTO:
     heading: str | None = None
-    body: str | None = None
     notes: str | None = None
-    layout: str | None = None
+    slide_type: str | None = None
+    content: dict[str, Any] | None = None
 
 
 @dataclass(frozen=True)

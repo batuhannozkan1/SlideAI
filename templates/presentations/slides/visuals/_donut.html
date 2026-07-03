@@ -1,0 +1,7 @@
+{% comment %}donut: {percent(0-100), center, label}{% endcomment %}
+<div class="viz viz-donut-wrap">
+    <div class="viz-donut" style="background: conic-gradient(var(--slide-brand) {{ d.percent|default:0 }}%, #e5e7eb 0);">
+        <div class="hole">{% if d.center %}{{ d.center }}{% else %}{{ d.percent|default:0 }}{% endif %}</div>
+    </div>
+    {% if d.label %}<div class="viz-donut-label">{{ d.label }}</div>{% endif %}
+</div>

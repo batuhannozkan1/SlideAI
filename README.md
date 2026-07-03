@@ -219,6 +219,39 @@ Idempotent — safe to run multiple times.
 - `GET /presentations/<uuid>/export/pptx/` — Download PowerPoint
 - `GET /presentations/<uuid>/export/pdf/` — PDF (coming soon)
 
+## REST API (`/api/v1/`) — mobile client
+
+A thin Django REST Framework layer (`apps/api/`) exposes the existing services
+as JSON for the Flutter mobile app. Auth is **JWT** (access + refresh) via
+`djangorestframework-simplejwt`, reusing the email-based `EmailAuthBackend`.
+The API is additive — the server-rendered web app above is unchanged.
+
+- `POST /api/v1/auth/register|login`, `POST /api/v1/auth/token/refresh/`, `GET /api/v1/auth/me/`
+- `GET|POST /api/v1/presentations/`, `GET|PATCH|DELETE /api/v1/presentations/<uuid>/`, `POST .../duplicate/`
+- `GET|POST /api/v1/presentations/<uuid>/slides/`, `POST .../slides/reorder/`, `GET|PATCH|DELETE /api/v1/slides/<uuid>/`
+- `GET /api/v1/themes/`, `GET /api/v1/templates/`, `GET /api/v1/dashboard/stats/`
+- `POST /api/v1/ai/generate/` (sync), `POST /api/v1/ai/slides/<uuid>/edit/`
+- `GET /api/v1/presentations/<uuid>/export/pptx/`
+
+Errors are returned as JSON (`apps/api/exceptions.py`) instead of the SSR HTML
+error pages. Tests: `DJANGO_ENV=test pytest apps/api/`.
+
+## Mobile App (Flutter)
+
+A native Flutter client lives in [`mobile/`](mobile/README.md). It consumes the
+`/api/v1/` API and faithfully reproduces the slide design system (cover / split
+/ closing + 8 visual types) using the same proportional unit system as
+`static/css/slides.css`.
+
+```bash
+cd mobile
+flutter pub get
+flutter run            # Android emulator reaches the dev server at 10.0.2.2:8000
+```
+
+See [`mobile/README.md`](mobile/README.md) for architecture, the per-platform
+API base URL, and run/test instructions.
+
 ## License
 
 All rights reserved.

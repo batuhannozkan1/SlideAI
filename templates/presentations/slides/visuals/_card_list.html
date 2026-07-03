@@ -1,0 +1,9 @@
+{% comment %}card_list: {cards: [{icon, title, text, color}]}{% endcomment %}
+<div class="viz viz-cards">
+    {% for card in d.cards %}
+    <div class="viz-cardrow bd-{{ card.color|default:'neutral' }}">
+        <div class="ic ic-{{ card.color|default:'neutral' }}"><i class="fas {{ card.icon|default:'fa-circle' }}"></i></div>
+        <div><div class="t">{{ card.title }}</div><div class="d">{{ card.text }}</div></div>
+    </div>
+    {% endfor %}
+</div>

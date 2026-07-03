@@ -26,7 +26,8 @@ def create_test_slide(presentation: Presentation, **kwargs) -> Slide:
     defaults = {
         "presentation": presentation,
         "heading": "Test Slide",
-        "body": "Test body content",
+        "slide_type": "split",
+        "content": {"subtitle": "Test subtitle", "points": []},
         "position": 0,
     }
     defaults.update(kwargs)

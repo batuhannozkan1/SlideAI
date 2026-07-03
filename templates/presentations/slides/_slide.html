@@ -1,0 +1,17 @@
+{% comment %}
+Single slide card renderer. Context:
+  slide  — Slide instance (slide.slide_type, slide.heading, slide.content dict, slide.notes)
+  page   — 1-based page number
+  total  — total slide count
+  brand  — header brand label
+Dispatches on slide_type. Used by present.html, editor canvas and mini thumbnails.
+{% endcomment %}
+<div class="slide-card slide-card--{{ slide.slide_type }}">
+{% if slide.slide_type == "cover" %}
+    {% include "presentations/slides/_cover.html" with c=slide.content heading=slide.heading brand=brand %}
+{% elif slide.slide_type == "closing" %}
+    {% include "presentations/slides/_closing.html" with c=slide.content heading=slide.heading brand=brand %}
+{% else %}
+    {% include "presentations/slides/_split.html" with c=slide.content heading=slide.heading brand=brand page=page total=total %}
+{% endif %}
+</div>

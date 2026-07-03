@@ -14,9 +14,9 @@ class AIGenerateForm(forms.Form):
     )
     num_slides = forms.IntegerField(
         min_value=3,
-        max_value=20,
-        initial=8,
-        widget=forms.NumberInput(attrs={"type": "range", "min": 3, "max": 20, "step": 1}),
+        max_value=40,
+        initial=10,
+        widget=forms.NumberInput(attrs={"min": 3, "max": 40, "step": 1}),
     )
     style = forms.ChoiceField(
         choices=[

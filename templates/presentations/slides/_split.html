@@ -1,0 +1,32 @@
+{% load slide_extras %}{% comment %}Split content slide: header + left text panel + right visual panel.{% endcomment %}
+<div class="hdr">
+    <div class="hdr-left">
+        <div class="hdr-logo"><i class="fas fa-layer-group"></i></div>
+        <span class="hdr-brand">{{ brand|default:"SlideAI" }}</span>
+    </div>
+    <div class="hdr-page">{{ page }} / {{ total }}</div>
+</div>
+
+<div class="split">
+    <div class="split-left">
+        {% if c.eyebrow %}<span class="eyebrow {{ c.styles|el_style:'eyebrow' }}">{{ c.eyebrow }}</span>{% endif %}
+        <h1 class="page-title {{ c.styles|el_style:'heading' }}">{{ heading }}</h1>
+        {% if c.subtitle %}<p class="page-subtitle {{ c.styles|el_style:'subtitle' }}">{{ c.subtitle }}</p>{% endif %}
+        {% if c.points %}
+        <ul class="check-list">
+            {% for p in c.points %}
+            <li>
+                <span class="ci ci-{{ p.kind|default:'info' }}">{% if p.kind == 'ok' %}&#10003;{% elif p.kind == 'risk' %}&#10007;{% elif p.kind == 'warn' %}!{% elif p.kind == 'num' %}{{ forloop.counter }}{% else %}&#8594;{% endif %}</span>
+                <span>{% if p.label %}<strong>{{ p.label }}</strong>{% if p.text %} — {% endif %}{% endif %}{{ p.text }}</span>
+            </li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        {% if c.highlight %}<div class="highlight-text {{ c.styles|el_style:'highlight' }}"><strong>Önemli:</strong> {{ c.highlight }}</div>{% endif %}
+    </div>
+    <div class="split-right">
+        <div class="floating-card">
+            {% include "presentations/slides/visuals/_visual.html" with visual=c.visual %}
+        </div>
+    </div>
+</div>

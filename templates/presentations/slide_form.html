@@ -18,21 +18,17 @@
                        class="w-full px-3 py-2 border border-outline-variant rounded-lg text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary">
             </div>
             <div>
-                <label for="id_body" class="block text-sm font-medium text-on-surface mb-1">İçerik</label>
-                <textarea name="body" id="id_body" rows="6"
-                          class="w-full px-3 py-2 border border-outline-variant rounded-lg text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary">{{ form.body.value|default:"" }}</textarea>
-            </div>
-            <div>
                 <label for="id_notes" class="block text-sm font-medium text-on-surface mb-1">Konuşmacı Notları</label>
                 <textarea name="notes" id="id_notes" rows="3"
                           class="w-full px-3 py-2 border border-outline-variant rounded-lg text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary">{{ form.notes.value|default:"" }}</textarea>
             </div>
             <div>
-                <label for="id_layout" class="block text-sm font-medium text-on-surface mb-1">Düzen</label>
+                <label for="id_slide_type" class="block text-sm font-medium text-on-surface mb-1">Slayt Tipi</label>
                 <div class="[&_select]:w-full [&_select]:px-3 [&_select]:py-2 [&_select]:border [&_select]:border-outline-variant [&_select]:rounded-lg [&_select]:text-sm [&_select]:bg-white [&_select]:focus:outline-none [&_select]:focus:border-primary [&_select]:focus:ring-1 [&_select]:focus:ring-primary">
-                    {{ form.layout }}
+                    {{ form.slide_type }}
                 </div>
             </div>
+            <p class="text-xs text-on-surface-variant">İçerik (madde, görsel vb.) tasarım rehberine göre AI ile üretilir; manuel ayrıntılı düzenleme yakında.</p>
             <div class="flex gap-3 pt-2">
                 <button type="submit" class="px-4 py-2 bg-[#eff6ff] text-[#2563eb] border border-[#bfdbfe] font-medium rounded-xl hover:bg-[#dbeafe] transition-colors text-sm">
                     Kaydet

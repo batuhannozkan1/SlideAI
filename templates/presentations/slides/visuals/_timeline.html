@@ -1,0 +1,10 @@
+{% comment %}timeline: {events: [{date, label, tag}]}{% endcomment %}
+<div class="viz viz-timeline">
+    {% for e in d.events %}
+    <div class="viz-tl-item">
+        <div class="date">{{ e.date }}</div>
+        <div class="lbl">{{ e.label }}</div>
+        {% if e.tag %}<span class="tag">{{ e.tag }}</span>{% endif %}
+    </div>
+    {% endfor %}
+</div>
